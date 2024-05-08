@@ -7,19 +7,21 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
 
-// Middleware para parsear JSON
 app.use(bodyParser.json());
 
 app.post('/call-netsuite', (req, res) => {
+    const data = req.body;
+    const arrayId = data['arrayId'];
 
-    //BODY DE LA SOLICITUD
-    const data = req[`body`];
+    if (!arrayId || arrayId.length === 0) {
+        return res.status(400).json({ error: "No se recibieron elementos en el atributo 'arrayId'." });
+    }
 
-    //CONFIGURACION OAUTH 1.0
+    // Configuración OAuth 1.0
     const oauth = OAuth({
         consumer: {
-            key: data[`consumer_key`],
-            secret: data[`consumer_secret`]
+            key: data['consumer_key'],
+            secret: data['consumer_secret']
         },
         signature_method: 'HMAC-SHA256',
         hash_function(base_string, key) {
@@ -27,39 +29,33 @@ app.post('/call-netsuite', (req, res) => {
         }
     });
 
-    //TOKEN DE ACCESO
+    // Token de acceso
     const token = {
-        key: data[`token_key`],
-        secret: data[`token_secret`]
+        key: data['token_key'],
+        secret: data['token_secret']
     };
 
-    //URL RESTLET
-    const url = data[`url`];
+    const fetchPromises = arrayId.map(id => {
+        const url = `${data['url']}&id=${id}`;
+        const authorization = oauth.toHeader(oauth.authorize({url, method: 'GET'}, token));
+        authorization['Authorization'] += `, realm="${data['realm']}"`;
 
-    //HEADERS AUTORIZACION
-    const authorization = oauth.toHeader(oauth.authorize({url, method: `POST`}, token));
-    authorization['Authorization'] += `, realm="${data[`realm`]}"`;
-    
-    let notification = { resourceType: data[`resourceType`], resourceId: data[`resourceId`], companyId: data[`companyId`] };
-    
-    //OPCIONES DE LA PETICION A NETSUITE
-    const options = {
-        method: `POST`,
-        headers: {
-            ...authorization,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(notification)
-    };
+        const options = {
+            method: 'GET',
+            headers: {
+                ...authorization,
+                'Content-Type': 'application/json'
+            }
+        };
 
+        return fetch(url, options).then(response => response.json());
+    });
 
-    //EJECUCION DE REQUEST
-    fetch(url, options)
-        .then(response => response.json())
-        .then(data => res.status(200).json(data))
+    Promise.all(fetchPromises)
+        .then(results => res.status(200).json(results))
         .catch(error => {
-            console.error(`Error al llamar a NetSuite:`, error);
-            res.status(500).json({ error: `Error interno del servidor` });
+            console.error('Error al llamar a NetSuite:', error);
+            res.status(500).json({ error: 'Error interno del servidor' });
         });
 });
 
