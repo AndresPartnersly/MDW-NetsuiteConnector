@@ -1,4 +1,3 @@
-// Importación de módulos necesarios para el servidor.
 const express = require('express');
 const OAuth = require('oauth-1.0a');
 const crypto = require('crypto');
@@ -14,16 +13,14 @@ const port = 3000;
 // Middleware de Express para analizar cuerpos de solicitud JSON automáticamente.
 app.use(bodyParser.json());
 
-// Creación de un cliente Axios con límite de tasa aplicado para evitar exceder el número de peticiones permitidas por segundo.
 const http = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 2000 });
-
 // Configuración de reintentos automáticos para el cliente Axios para manejar fallos temporales en las peticiones.
 axiosRetry(http, {
-    retries: 10  // Número de veces que se reintenta una petición fallida.
+    retries: 10
 });
 
-// Ruta POST para manejar peticiones en el endpoint '/call-netsuite'.
-app.post('/call-netsuite', async (req, res) => {
+app.post('/netsuite-trigger', async (req, res) => {
+    
     const data = req.body; // Datos recibidos en el cuerpo de la solicitud.
     const arrayId = data['arrayId']; // Array de IDs que se obtienen del cuerpo de la solicitud.
 
@@ -32,7 +29,13 @@ app.post('/call-netsuite', async (req, res) => {
         return res.status(400).json({ error: "No se recibieron elementos en el atributo 'arrayId'." });
     }
 
-    // Configuración de la autenticación OAuth 1.0 para las peticiones.
+    // Responder inmediatamente al cliente que la solicitud ha sido recibida
+    res.status(202).json({ status: 202, error: false, details: `Solicitud recibida, procesando información.` });
+    // Continuar con el procesamiento en segundo plano
+    processRequest(data, arrayId);
+});
+
+function processRequest(data, arrayId) {
     const oauth = OAuth({
         consumer: {
             key: data['consumer_key'], // Clave del consumidor para OAuth.
@@ -43,7 +46,7 @@ app.post('/call-netsuite', async (req, res) => {
             return crypto.createHmac('sha256', key).update(base_string).digest('base64');
         }
     });
-
+    
     // Token de acceso para las peticiones.
     const token = {
         key: data['token_key'], // Clave del token de acceso.
@@ -66,14 +69,18 @@ app.post('/call-netsuite', async (req, res) => {
             // Maneja errores en la petición y devuelve un objeto de error.
             return { status: 400, error: true, details: `name =>: ${error.name} - code =>: ${error.code} - message =>: ${error.message}`, id: id };
         });
-
     });
 
     // Espera que todas las peticiones se completen y luego envía la respuesta global.
     Promise.all(requests)
-        .then(results => res.status(200).json(results))
-        .catch(error => res.status(500).json({ error: 'Error interno del servidor' }));
-});
+        .then(results => {
+            console.log("Procesamiento completado:", results);
+            // Aquí podrías, por ejemplo, enviar estos resultados a otro sistema o almacenarlos en una base de datos
+        })
+        .catch(error => {
+            console.error("Error procesando las solicitudes:", error);
+        });
+}
 
 // Inicia el servidor en el puerto especificado y muestra un mensaje en la consola.
 app.listen(port, () => {
