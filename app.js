@@ -4,16 +4,20 @@ const crypto = require('crypto');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const rateLimit = require('axios-rate-limit');
-const axiosRetry = require('axios-retry');
+const axiosRetry = require('axios-retry').default;
 
 const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
 
-// Configura el cliente de Axios con límite de tasa y reintentos
+// Crea un cliente de Axios y configura el límite de tasa
 const http = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 1000 });
-axiosRetry(http, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
+// Configura reintentos para el cliente de Axios
+axiosRetry(http, {
+    retries: 3
+});
 
 app.post('/call-netsuite', async (req, res) => {
     const data = req.body;
