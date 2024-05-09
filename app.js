@@ -15,11 +15,11 @@ const port = 3000;
 app.use(bodyParser.json());
 
 // Creación de un cliente Axios con límite de tasa aplicado para evitar exceder el número de peticiones permitidas por segundo.
-const http = rateLimit(axios.create(), { maxRequests: 25, perMilliseconds: 1000 });
+const http = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 2000 });
 
 // Configuración de reintentos automáticos para el cliente Axios para manejar fallos temporales en las peticiones.
 axiosRetry(http, {
-    retries: 3  // Número de veces que se reintenta una petición fallida.
+    retries: 10  // Número de veces que se reintenta una petición fallida.
 });
 
 // Ruta POST para manejar peticiones en el endpoint '/call-netsuite'.
@@ -64,7 +64,7 @@ app.post('/call-netsuite', async (req, res) => {
             }
         }).then(response => response.data).catch(error => {
             // Maneja errores en la petición y devuelve un objeto de error.
-            return { status: error.code, error: true, details: `name =>: ${error.name} - code =>: ${error.code} - message =>: ${error.message}`, id: id };
+            return { status: 400, error: true, details: `name =>: ${error.name} - code =>: ${error.code} - message =>: ${error.message}`, id: id };
         });
 
     });
