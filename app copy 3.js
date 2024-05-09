@@ -1,21 +1,15 @@
 const express = require('express');
 const OAuth = require('oauth-1.0a');
+const fetch = require('node-fetch');
 const crypto = require('crypto');
 const bodyParser = require('body-parser');
-const axios = require('axios');
-const rateLimit = require('axios-rate-limit');
-const axiosRetry = require('axios-retry');
 
 const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
 
-// Configura el cliente de Axios con límite de tasa y reintentos
-const http = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 1000 });
-axiosRetry(http, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
-
-app.post('/call-netsuite', async (req, res) => {
+app.post('/call-netsuite', (req, res) => {
     const data = req.body;
     const arrayId = data['arrayId'];
 
@@ -41,24 +35,28 @@ app.post('/call-netsuite', async (req, res) => {
         secret: data['token_secret']
     };
 
-    const requests = arrayId.map(id => {
+    const fetchPromises = arrayId.map(id => {
         const url = `${data['url']}&id=${id}`;
         const authorization = oauth.toHeader(oauth.authorize({url, method: 'GET'}, token));
         authorization['Authorization'] += `, realm="${data['realm']}"`;
 
-        return http.get(url, {
+        const options = {
+            method: 'GET',
             headers: {
                 ...authorization,
                 'Content-Type': 'application/json'
             }
-        }).then(response => response.data).catch(error => {
-            return { error: true, details: error.message, id };
-        });
+        };
+
+        return fetch(url, options).then(response => response.json());
     });
 
-    Promise.all(requests)
+    Promise.all(fetchPromises)
         .then(results => res.status(200).json(results))
-        .catch(error => res.status(500).json({ error: 'Error interno del servidor' }));
+        .catch(error => {
+            console.error('Error al llamar a NetSuite:', error);
+            res.status(500).json({ error: 'Error interno del servidor' });
+        });
 });
 
 app.listen(port, () => {
