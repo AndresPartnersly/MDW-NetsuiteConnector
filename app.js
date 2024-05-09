@@ -13,7 +13,7 @@ const port = 3000;
 // Middleware de Express para analizar cuerpos de solicitud JSON automáticamente.
 app.use(bodyParser.json());
 
-const http = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 2000 });
+const http = rateLimit(axios.create(), { maxRequests: 15, perMilliseconds: 30000 });
 // Configuración de reintentos automáticos para el cliente Axios para manejar fallos temporales en las peticiones.
 axiosRetry(http, {
     retries: 10
