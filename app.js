@@ -13,16 +13,27 @@ const port = 3000;
 // Middleware de Express para analizar cuerpos de solicitud JSON automáticamente.
 app.use(bodyParser.json());
 
-const http = rateLimit(axios.create(), { maxRequests: 15, perMilliseconds: 30000 });
+/*const http = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 60000 });
 // Configuración de reintentos automáticos para el cliente Axios para manejar fallos temporales en las peticiones.
 axiosRetry(http, {
     retries: 10
-});
+});*/
+
+//Configuración por defecto.
+let http = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 60000 });
 
 app.post('/netsuite-trigger', async (req, res) => {
     
     const data = req.body; // Datos recibidos en el cuerpo de la solicitud.
     const arrayId = data['arrayId']; // Array de IDs que se obtienen del cuerpo de la solicitud.
+
+    http = rateLimit(axios.create(), { maxRequests: data['maxRequests'], perMilliseconds: data['perMilliseconds'] });
+
+    console.log(`retries: ${data['retries']} - maxRequests: ${data['maxRequests']} - perMilliseconds: ${data['perMilliseconds']}`)
+    // Configuración de reintentos automáticos para el cliente Axios para manejar fallos temporales en las peticiones.
+    axiosRetry(http, {
+        retries: data['retries']
+    });
 
     // Verifica si el arrayId es válido y contiene elementos.
     if (!arrayId || arrayId.length === 0) {
