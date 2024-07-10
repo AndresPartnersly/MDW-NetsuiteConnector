@@ -5,11 +5,16 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const rateLimit = require('axios-rate-limit');
 const axiosRetry = require('axios-retry').default;
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config();
 
 // Creación de una instancia de Express para gestionar las solicitudes HTTP.
 const app = express();
 const port = 3000;
-
+const JWT_SECRET = process.env.JWT_SECRET;
+const USERS_DATA = process.env.USERS_DATA;
+console.log(USERS_DATA);
 // Middleware de Express para analizar cuerpos de solicitud JSON automáticamente.
 app.use(bodyParser.json());
 
@@ -92,6 +97,78 @@ function processRequest(data, arrayId) {
             console.error("Error procesando las solicitudes:", error);
         });
 }
+
+// Ruta de inicio de sesión para obtener un token JWT
+app.post('/login', async (req, res) => {
+
+    const { username, password } = req.body;
+    const respuesta = await axios.get(USERS_DATA);
+    console.log(`User data query status => ${respuesta[`status`]}`);
+    if (respuesta[`status`] == 200)
+    {
+        console.log(`Users data => ${JSON.stringify(respuesta[`data`])}`)
+        if (respuesta[`data`].length > 0)
+        {
+            let filter = respuesta[`data`].filter(element => (element[`user`] === username && element[`password`] === password));
+
+            if (filter.length > 0)
+            {
+                const user = { name: username };
+                const accessToken = jwt.sign(user, JWT_SECRET, { expiresIn: `5m` });
+                //console.log(`accessToken: ${accessToken}`)
+                res.json({ error: false, message: `Usuario autenticado`, token: accessToken });
+            }
+            else
+            {
+                res.status(401).json({ error: true, message: `Usuario & contraseña incorrecta`, token: null });
+            }
+        }
+    }
+    else
+    {
+        res.status(401).json({ error: true, message: `Error al consultar usuario y contraseña`, token: null });
+    }
+    /*// En un entorno real, deberías verificar el usuario y la contraseña con la base de datos
+
+    
+    if (username === `user` && password === `password`)
+    {
+        const user = { name: username };
+        const accessToken = jwt.sign(user, JWT_SECRET, { expiresIn: `5m` });
+        //console.log(`accessToken: ${accessToken}`)
+        res.json({ error: false, message: `Usuario autenticado`, token: accessToken });
+    } else {
+        res.status(401).json({ error: true, message: `Usuario & contraseña incorrecta`, token: null });
+    }*/
+});
+
+function validateToken(req, res, next) {
+
+    const accessToken = req.headers['authorization'];
+
+    if (!accessToken) res.status(401).send(`Access denegado, no se recibio token de autorización`);
+
+    jwt.verify(accessToken, JWT_SECRET, (err, user) => {
+        if (err) { 
+            res.status(401).send(`Access denied, token expirado or incorrecto`)
+        }
+        else{
+            req.user = user;
+            next();
+        }
+            //return res.sendStatus(403);
+        //req.user = user;
+        //next();
+    });
+}
+
+// Ruta protegida que requiere autenticación
+app.get('/protected', validateToken, (req, res) => {
+    res.json({
+        message: `This is a protected route`,
+        username: req[`user`]
+    });
+});
 
 // Inicia el servidor en el puerto especificado y muestra un mensaje en la consola.
 app.listen(port, () => {
