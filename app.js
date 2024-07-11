@@ -14,7 +14,10 @@ const app = express();
 const port = 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 const USERS_DATA = process.env.USERS_DATA;
-console.log(USERS_DATA);
+const PRODUCT_CONFIGURATION = process.env.PRODUCT_CONFIGURATION;
+const BASE_URL = process.env.BASE_URL;
+const FIELDSET = process.env.FIELDSET;
+
 // Middleware de Express para analizar cuerpos de solicitud JSON automáticamente.
 app.use(bodyParser.json());
 
@@ -152,22 +155,50 @@ function validateToken(req, res, next) {
         if (err) { 
             res.status(401).send(`Access denied, token expirado or incorrecto`)
         }
-        else{
+        else
+        {
             req.user = user;
             next();
         }
-            //return res.sendStatus(403);
-        //req.user = user;
-        //next();
     });
 }
 
-// Ruta protegida que requiere autenticación
+// 
 app.get('/protected', validateToken, (req, res) => {
     res.json({
         message: `This is a protected route`,
         username: req[`user`]
     });
+});
+
+//
+app.get('/products', async (req, res) => {
+    
+    const respuesta = await axios.get(PRODUCT_CONFIGURATION);
+
+    console.log(`Product configuration query status => ${respuesta[`status`]}`);
+    if (respuesta[`status`] == 200)
+    {
+        console.log(`Product configuration data => ${JSON.stringify(respuesta[`data`])}`)
+        if (respuesta[`data`].length > 0)
+        {
+            let filter = respuesta[`data`].filter(element => (element[`customerId`] === `xxxxxxxxx`));
+
+            if (filter.length > 0)
+            {
+
+                //res.json({ error: false, message: `Usuario autenticado`, token: accessToken });
+            }
+            else
+            {
+                //res.status(401).json({ error: true, message: `Usuario & contraseña incorrecta`, token: null });
+            }
+        }
+    }
+    else
+    {
+        //res.status(401).json({ error: true, message: `Error al consultar usuario y contraseña`, token: null });
+    }
 });
 
 // Inicia el servidor en el puerto especificado y muestra un mensaje en la consola.
