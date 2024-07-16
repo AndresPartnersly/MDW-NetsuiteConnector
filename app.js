@@ -169,60 +169,91 @@ app.get('/protected', validateToken, (req, res) => {
 //
 app.get('/products', async (req, res) => {
 
-    const respuesta = await axios.get(PRODUCT_CONFIGURATION);
-    let parsedResponse = respuesta.data;
-    let responseCode = respuesta.status;
-    //console.log(`173. Response: ${JSON.stringify(parsedResponse)}`);
-    console.log(`Product configuration query status => ${respuesta[`status`]}`);
+    let serviceResponse = { error: false, message: ``, user: null };
 
-    if (responseCode == 200) {
+    try {
 
-        let responseConfig = parsedResponse.configuration;
-        //console.log(`179. Response Config: ${JSON.stringify(responseConfig)}`);
+        const respuesta = await axios.get(PRODUCT_CONFIGURATION);
+        let parsedResponse = respuesta.data;
+        let responseCode = respuesta.status;
+        //console.log(`173. Response: ${JSON.stringify(parsedResponse)}`);
+        console.log(`Product configuration query status => ${respuesta[`status`]}`);
 
-        if (!isEmpty(responseConfig)) {
+        if (responseCode == 200) {
 
-            let filter = responseConfig.filter(element => (element[`customerId`] === 'xxxxxxxxx'));
-            //console.log(`199. Filter Result: ${JSON.stringify(filter)}`);
-            if (filter.length > 0) {
+            let responseConfig = parsedResponse.configuration;
+            //console.log(`179. Response Config: ${JSON.stringify(responseConfig)}`);
 
-                console.log(`193. Usuario autenticado.`);
+            if (!isEmpty(responseConfig)) {
 
-                let locationsConfig = filter[0].configLocationData; // Array
-                console.log(`196. Locations Config: ${JSON.stringify(locationsConfig)}`);
+                let customerData = responseConfig.filter(element => (element[`customerId`] === 'xxxxxxxxx'));
+                //console.log(`199. customerData Result: ${JSON.stringify(customerData)}`);
+                if (customerData.length > 0) {
 
-                if (!isEmpty(locationsConfig)) {
+                    let customerId = customerData[0].customerId;
+                    serviceResponse.user = customerId;
+                    console.log(`193. Autenticación satisfactoria | Usuario: ${customerId}.`);
 
-                    let priceLevelConfig = filter[0].configPriceLevelData; // Array
-                    console.log(`201. Price Level Config: ${JSON.stringify(priceLevelConfig)}`);
+                    let locationsConfig = customerData[0].configLocationData; // Array
+                    console.log(`196. Locations Config: ${JSON.stringify(locationsConfig)}`);
 
-                    if (!isEmpty(priceLevelConfig)) {
+                    if (!isEmpty(locationsConfig)) {
 
-                        let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}`;
-                        console.log(`206. BaseUrl: ${baseUrl}`);
-                        let itemsParameter = filter[0].itemsId;
+                        let priceLevelConfig = customerData[0].configPriceLevelData; // Array
+                        console.log(`201. Price Level Config: ${JSON.stringify(priceLevelConfig)}`);
 
-                        if (!isEmpty(itemsParameter)) {
+                        if (!isEmpty(priceLevelConfig)) {
 
-                            let nsRequestUrl = `${baseUrl}&id=${itemsParameter}`;
-                            const nsResponse = await axios.get(nsRequestUrl);
-                            let nsResponseData = nsResponse.data;
-                            let nsResposeCode = nsResponse.status;
-                            console.log(`208. NetSuite Response: ${nsResposeCode}`);
-                            //console.log(`212. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`)
+                            let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset=0`;
+                            console.log(`202. BaseUrl: ${baseUrl}`);
+                            let itemsParameter = customerData[0].itemsId;
+                            let customerItemsArray = itemsParameter.split(',');
+                            let customerItemsQty = customerItemsArray.length;
+                            console.log(`206. Items disponibles para el cliente ${customerItemsQty}`)//: ${JSON.stringify(customerItemsArray)})
 
-                            if (nsResposeCode == 200) {
+                            if (!isEmpty(itemsParameter) && !isEmpty(customerItemsArray)) {
 
-                                let itemsData = nsResponseData.items;
-                                //console.log(`216. Items Data: ${JSON.stringify(itemsData)}`);
+                                let cantidadIteraciones = 1;
+                                let itemsProcesar = null;
+                                let itemsResultArray = [];
 
-                                if (!isEmpty(itemsData)) {
+                                if (customerItemsQty > 100) {
+                                    itemsProcesar = arraySplit(customerItemsArray, 100);
+                                    //console.log(`216. Items a procesar: ${JSON.stringify(itemsProcesar)}`);
+                                    cantidadIteraciones = itemsProcesar.length;
+                                }
 
-                                    let locations = 601; //parseFloat(locationsConfig[1].nsLocationId);
-                                    console.log(`222. Locations: ${locations}`);
+                                console.log(`217. Cantidad de iteraciones: ${cantidadIteraciones}`);
 
-                                    let itemsFilter = itemsData.filter(element => (element.isinstock == true));
-                                    console.log(`225. Items in Stock: ${itemsFilter.length}`);
+                                for (let i = 0; i < cantidadIteraciones; i++) {
+
+                                    //console.log(`222. Line: ${i} | Ids a procesar (${itemsProcesar[i].length}): ${JSON.stringify(itemsProcesar[i])}`);
+                                    let itemsIds = itemsProcesar[i].toString().replace(`"`, ``).replace(`[`, ``).replace(`]`, ``);
+                                    //console.log(`227. ItemIds: ${itemsIds}`);
+                                    let nsRequestUrl = `${baseUrl}&id=${itemsIds}`;
+                                    const nsResponse = await axios.get(nsRequestUrl);
+                                    let nsResponseData = nsResponse.data;
+                                    let nsResposeCode = nsResponse.status;
+                                    console.log(`232. Line ${i} | NetSuite Response: ${nsResposeCode}`);
+                                    //console.log(`233. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`);
+
+                                    if (nsResposeCode == 200) {
+
+                                        let nsResponseItems = nsResponseData.items;
+                                        console.log(`238. Line ${i} | NetSuite Response Items Quantity: ${nsResponseItems.length}`);
+
+                                        if (nsResponseItems.length > 0) {
+                                            itemsResultArray = itemsResultArray.concat(nsResponseItems);
+                                        }
+                                    }
+                                }
+
+                                console.log(`245. Final Items Array Quantity: ${itemsResultArray.length}`); //${JSON.stringify(itemsResultArray)}
+
+                                if (itemsResultArray.length > 0) {
+
+                                    let itemsFilter = itemsResultArray.filter(element => (element.isinstock == true));
+                                    console.log(`250. Items in Stock: ${itemsFilter.length}`);
 
                                     let outputArray = [];
 
@@ -235,49 +266,72 @@ app.get('/products', async (req, res) => {
                                                 full_name: itemsFilter[i].displayname,
                                                 upc_code: itemsFilter[i].upccode,
                                                 marca: itemsFilter[i].custitem_marca,
-                                                has_stock: false,
-                                                available_quantity: 0
+                                                has_stock: false
                                             };
 
                                             for (let b = 0; b < locationsConfig.length; b++) {
 
                                                 let locationId = locationsConfig[b].nsLocationId;
-                                                console.log(`244. Line: ${i}_${b} | Location: ${locationId}`);
+                                                console.log(`269. Line: ${i}_${b} | Location: ${locationId}`);
                                                 let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
                                                 let locationStockMax = parseFloat(locationsConfig[b].stockMax);
+                                                console.log(`272. Line: ${i}_${b} | Location Stock Percent: ${locationStockPercent} | Location Stock Max: ${locationStockMax}`);
 
                                                 let itemLocations = itemsFilter[i].quantityavailable_detail.locations; // Array
-                                                console.log(`248. Line: ${i}_${b} | Item Locations: ${JSON.stringify(itemLocations)}`);
+                                                console.log(`275. Line: ${i}_${b} | Item Locations: ${JSON.stringify(itemLocations)}`);
                                                 let itemLocFilter = itemLocations.filter(element => (element.internalid == locationId));
-                                                console.log(`250. Line: ${i}_${b} | ItemLocFilter: ${JSON.stringify(itemLocFilter)}`);
+                                                console.log(`277. Line: ${i}_${b} | ItemLocFilter: ${JSON.stringify(itemLocFilter)}`);
 
                                                 if (itemLocFilter.length > 0) {
-                                                    console.log(`255. Line: ${i}_${b} | Location Available Quantity: ${itemLocFilter[0].quantityavailable}`);
-                                                    obj.available_quantity = obj.available_quantity + itemLocFilter[0].quantityavailable;
-                                                }
-                                            }
 
-                                            if (obj.available_quantity > 0) {
-                                                obj.has_stock = true;
+                                                    let quantityAvailable = itemLocFilter[0].quantityavailable;
+                                                    console.log(`282. Line: ${i}_${b} | Location Available Quantity: ${quantityAvailable}`);
+
+                                                    if (quantityAvailable > 0) {
+                                                        obj.has_stock = true;
+                                                        break;
+                                                    }
+                                                }
                                             }
                                             outputArray.push(obj);
                                         }
-                                    }
 
-                                    res.status(200).json({ error: false, message: `solicitud procesada correctamente`, quantity: itemsFilter.length, items: outputArray });
+                                        console.log(`300. Servicio correctamente ejecutado`);
+                                        serviceResponse.message = `solicitud realizada con exito`;
+                                        serviceResponse.quantity = outputArray.length;
+                                        serviceResponse.items = outputArray;
+                                        res.status(200).json(serviceResponse);
+                                    }
                                 }
                             }
                         }
-                    }
-                    else {
-                        //res.status(401).json({ error: true, message: `Usuario & contraseña incorrecta`, token: null });
+                        else {
+                            //res.status(401).json({ error: true, message: `Usuario & contraseña incorrecta`, token: null });
+                        }
                     }
                 }
             }
         }
+        else {
+            //res.status(401).json({ error: true, message: `Error al consultar usuario y contraseña`, token: null });
+        }
     }
-    else {
-        //res.status(401).json({ error: true, message: `Error al consultar usuario y contraseña`, token: null });
+    catch (e) {
+
+        let errorMsg = null;
+
+        console.log(`Error: ${JSON.stringify(e)}`);
+        console.log(`Error: ${e.message}`);
+
+        if (!isEmpty(e.message)) {
+            errorMsg = e.message;
+        }
+        else {
+            errorMsg = JSON.stringify(e)
+        }
+
+        serviceResponse.message = errorMsg;
+        res.status(401).json(serviceResponse);
     }
 });
 
@@ -304,4 +358,12 @@ let isEmpty = (value) => {
         return true;
 
     return false;
+}
+
+let arraySplit = (array, chunkSize) => {
+    let chunks = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+        chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
 }
