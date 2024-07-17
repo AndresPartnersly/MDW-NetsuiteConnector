@@ -169,7 +169,7 @@ app.get('/protected', validateToken, (req, res) => {
 //
 app.get('/products', async (req, res) => {
 
-    let serviceResponse = { error: false, message: ``, user: null };
+    let serviceResponse = { error: true, message: ``, customerId: null };
 
     try {
 
@@ -186,12 +186,13 @@ app.get('/products', async (req, res) => {
 
             if (!isEmpty(responseConfig)) {
 
-                let customerData = responseConfig.filter(element => (element[`customerId`] === 'xxxxxxxxx'));
+                let userId = 'xxxxxxxxx';
+                serviceResponse.customerId = userId;
+                let customerData = responseConfig.filter(element => (element[`customerId`] === userId));
                 //console.log(`199. customerData Result: ${JSON.stringify(customerData)}`);
                 if (customerData.length > 0) {
 
                     let customerId = customerData[0].customerId;
-                    serviceResponse.user = customerId;
                     console.log(`193. Autenticación satisfactoria | Usuario: ${customerId}.`);
 
                     let locationsConfig = customerData[0].configLocationData; // Array
@@ -204,6 +205,7 @@ app.get('/products', async (req, res) => {
 
                         if (!isEmpty(priceLevelConfig)) {
 
+                            let priceLevelId = priceLevelConfig[0].priceLevelId;
                             let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset=0`;
                             console.log(`202. BaseUrl: ${baseUrl}`);
                             let itemsParameter = customerData[0].itemsId;
@@ -246,6 +248,10 @@ app.get('/products', async (req, res) => {
                                             itemsResultArray = itemsResultArray.concat(nsResponseItems);
                                         }
                                     }
+                                    else {
+                                        serviceResponse.message = `Error: el servicio de SuiteCommerce no se ejecuto correctamente. Code: ${nsResposeCode}.`
+                                        res.status(401).json(serviceResponse);
+                                    }
                                 }
 
                                 console.log(`245. Final Items Array Quantity: ${itemsResultArray.length}`); //${JSON.stringify(itemsResultArray)}
@@ -253,7 +259,7 @@ app.get('/products', async (req, res) => {
                                 if (itemsResultArray.length > 0) {
 
                                     let itemsFilter = itemsResultArray.filter(element => (element.isinstock == true));
-                                    console.log(`250. Items in Stock: ${itemsFilter.length}`);
+                                    console.log(`250. Items in Stock: ${itemsFilter.length} | ${JSON.stringify(itemsFilter)}`);
 
                                     let outputArray = [];
 
@@ -266,8 +272,13 @@ app.get('/products', async (req, res) => {
                                                 full_name: itemsFilter[i].displayname,
                                                 upc_code: itemsFilter[i].upccode,
                                                 marca: itemsFilter[i].custitem_marca,
-                                                has_stock: false
+                                                price: null,
+                                                in_stock: false
                                             };
+
+                                            if (itemsFilter[i].hasOwnProperty(priceLevelId)) {
+                                                obj.price = itemsFilter[i][`${priceLevelId}`];
+                                            }
 
                                             for (let b = 0; b < locationsConfig.length; b++) {
 
@@ -287,8 +298,8 @@ app.get('/products', async (req, res) => {
                                                     let quantityAvailable = itemLocFilter[0].quantityavailable;
                                                     console.log(`282. Line: ${i}_${b} | Location Available Quantity: ${quantityAvailable}`);
 
-                                                    if (quantityAvailable > 0) {
-                                                        obj.has_stock = true;
+                                                    if (quantityAvailable > 0 && obj.price != null) {
+                                                        obj.in_stock = true;
                                                         break;
                                                     }
                                                 }
@@ -296,24 +307,51 @@ app.get('/products', async (req, res) => {
                                             outputArray.push(obj);
                                         }
 
-                                        console.log(`300. Servicio correctamente ejecutado`);
-                                        serviceResponse.message = `solicitud realizada con exito`;
+                                        console.log(`310. Servicio correctamente ejecutado`);
+                                        serviceResponse.error = false;
+                                        serviceResponse.message = `Solicitud realizada con exito`;
                                         serviceResponse.quantity = outputArray.length;
                                         serviceResponse.items = outputArray;
                                         res.status(200).json(serviceResponse);
                                     }
+                                    else {
+                                        serviceResponse.message = `No se encontraron articulos en stock.`
+                                        res.status(200).json(serviceResponse);
+                                    }
                                 }
+                                else {
+                                    serviceResponse.message = `No se pudo encontro ninguno de los articulos asociados a cuenta del cliente.`
+                                    res.status(401).json(serviceResponse);
+                                }
+                            }
+                            else {
+                                serviceResponse.message = `No se pudo obtener configuracion de articulos disponibles.`
+                                res.status(401).json(serviceResponse);
                             }
                         }
                         else {
-                            //res.status(401).json({ error: true, message: `Usuario & contraseña incorrecta`, token: null });
+                            serviceResponse.message = `No se pudo obtener configuracion de listas de precios.`
+                            res.status(401).json(serviceResponse);
                         }
                     }
+                    else {
+                        serviceResponse.message = `No se pudo obtener configuracion de localizaciones.`
+                        res.status(401).json(serviceResponse);
+                    }
                 }
+                else {
+                    serviceResponse.message = `Credenciales no autorizadas.`
+                    res.status(500).json(serviceResponse);
+                }
+            }
+            else {
+                serviceResponse.message = `No se pudo obtener atributo de configuracion de usuarios.`
+                res.status(401).json(serviceResponse);
             }
         }
         else {
-            //res.status(401).json({ error: true, message: `Error al consultar usuario y contraseña`, token: null });
+            serviceResponse.message = `No se pudo consultar servicio de configuracion de credenciales.`
+            res.status(401).json(serviceResponse);
         }
     }
     catch (e) {
