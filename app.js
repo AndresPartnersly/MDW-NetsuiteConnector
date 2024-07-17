@@ -8,6 +8,7 @@ const axiosRetry = require('axios-retry').default;
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const { get } = require('https');
+const { is } = require('express/lib/request');
 dotenv.config();
 
 // Creación de una instancia de Express para gestionar las solicitudes HTTP.
@@ -169,49 +170,83 @@ app.get('/protected', validateToken, (req, res) => {
 //
 app.get('/products', async (req, res) => {
 
+    let expectedHeaders = {
+        user: null, 
+        password: null
+    } // Variable unicamente utilizada como referencia
+
     let serviceResponse = { error: true, message: ``, customerId: null };
+    let requestHeaders = req.headers;
+    //console.log(`180. Request Data: ${req}`); No se puede logear objeto por dependencia circular
+    console.log(`181. Request Headers: ${JSON.stringify(requestHeaders)}`);
 
     try {
 
-        const respuesta = await axios.get(PRODUCT_CONFIGURATION);
-        let parsedResponse = respuesta.data;
-        let responseCode = respuesta.status;
-        //console.log(`173. Response: ${JSON.stringify(parsedResponse)}`);
-        console.log(`Product configuration query status => ${respuesta[`status`]}`);
+        let requestUser = requestHeaders.user;
+        let requestPassword = requestHeaders.password;
+        console.log(`186. Request Credentials Index | User: ${requestUser} | Password: ${requestPassword}`);
+
+        if (!isEmpty(requestUser) && !isEmpty(requestPassword)) {
+
+            let usersDataQuery = await axios.get(USERS_DATA); // Se obtiene informacion de base de datos de clientes
+            let usersDataparsedResponse = usersDataQuery.data;
+            let usersDataResponseCode = usersDataQuery.status;
+            console.log(`193. Users Data Query Response => ${usersDataResponseCode} | Data: ${JSON.stringify(usersDataparsedResponse)}`);
+
+            if (usersDataResponseCode == 200) {
+
+                let usersDataFilter = usersDataparsedResponse.filter(element => element.user == requestUser && element.password == requestPassword);
+                // Se compara usuario que realiza el request con base de datos de clientes
+                console.log(`200. User Filter: ${JSON.stringify(usersDataFilter)}`);
+
+                if (usersDataFilter.length > 0) {
+                    console.log(`204. Usuario autenticado.`);
+                }
+                else {
+                    console.log(`206. Usuario o contraseña incorrectos.`);
+                }
+            }
+        }
+
+        let respProductConfig = await axios.get(PRODUCT_CONFIGURATION);
+        let parsedResponse = respProductConfig.data;
+        let responseCode = respProductConfig.status;
+        //console.log(`211. Response: ${JSON.stringify(parsedResponse)}`);
+        console.log(`212. Product configuration query status => ${responseCode}`);
 
         if (responseCode == 200) {
 
             let responseConfig = parsedResponse.configuration;
-            //console.log(`179. Response Config: ${JSON.stringify(responseConfig)}`);
+            //console.log(`217. Response Config: ${JSON.stringify(responseConfig)}`);
 
             if (!isEmpty(responseConfig)) {
 
                 let userId = 'xxxxxxxxx';
                 serviceResponse.customerId = userId;
                 let customerData = responseConfig.filter(element => (element[`customerId`] === userId));
-                //console.log(`199. customerData Result: ${JSON.stringify(customerData)}`);
+                //console.log(`224. customerData Result: ${JSON.stringify(customerData)}`);
                 if (customerData.length > 0) {
 
                     let customerId = customerData[0].customerId;
-                    console.log(`193. Autenticación satisfactoria | Usuario: ${customerId}.`);
+                    console.log(`228. Autenticación satisfactoria | Usuario: ${customerId}.`);
 
                     let locationsConfig = customerData[0].configLocationData; // Array
-                    console.log(`196. Locations Config: ${JSON.stringify(locationsConfig)}`);
+                    console.log(`231. Locations Config: ${JSON.stringify(locationsConfig)}`);
 
                     if (!isEmpty(locationsConfig)) {
 
                         let priceLevelConfig = customerData[0].configPriceLevelData; // Array
-                        console.log(`201. Price Level Config: ${JSON.stringify(priceLevelConfig)}`);
+                        console.log(`236. Price Level Config: ${JSON.stringify(priceLevelConfig)}`);
 
                         if (!isEmpty(priceLevelConfig)) {
 
                             let priceLevelId = priceLevelConfig[0].priceLevelId;
                             let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset=0`;
-                            console.log(`202. BaseUrl: ${baseUrl}`);
+                            console.log(`242. BaseUrl: ${baseUrl}`);
                             let itemsParameter = customerData[0].itemsId;
                             let customerItemsArray = itemsParameter.split(',');
                             let customerItemsQty = customerItemsArray.length;
-                            console.log(`206. Items disponibles para el cliente ${customerItemsQty}`)//: ${JSON.stringify(customerItemsArray)})
+                            console.log(`246. Items disponibles para el cliente ${customerItemsQty}`)//: ${JSON.stringify(customerItemsArray)})
 
                             if (!isEmpty(itemsParameter) && !isEmpty(customerItemsArray)) {
 
@@ -221,23 +256,23 @@ app.get('/products', async (req, res) => {
 
                                 if (customerItemsQty > 100) {
                                     itemsProcesar = arraySplit(customerItemsArray, 100);
-                                    //console.log(`216. Items a procesar: ${JSON.stringify(itemsProcesar)}`);
+                                    //console.log(`256. Items a procesar: ${JSON.stringify(itemsProcesar)}`);
                                     cantidadIteraciones = itemsProcesar.length;
                                 }
 
-                                console.log(`217. Cantidad de iteraciones: ${cantidadIteraciones}`);
+                                console.log(`260. Cantidad de iteraciones: ${cantidadIteraciones}`);
 
                                 for (let i = 0; i < cantidadIteraciones; i++) {
 
-                                    //console.log(`222. Line: ${i} | Ids a procesar (${itemsProcesar[i].length}): ${JSON.stringify(itemsProcesar[i])}`);
+                                    //console.log(`264. Line: ${i} | Ids a procesar (${itemsProcesar[i].length}): ${JSON.stringify(itemsProcesar[i])}`);
                                     let itemsIds = itemsProcesar[i].toString().replace(`"`, ``).replace(`[`, ``).replace(`]`, ``);
-                                    //console.log(`227. ItemIds: ${itemsIds}`);
+                                    //console.log(`266. ItemIds: ${itemsIds}`);
                                     let nsRequestUrl = `${baseUrl}&id=${itemsIds}`;
                                     const nsResponse = await axios.get(nsRequestUrl);
                                     let nsResponseData = nsResponse.data;
                                     let nsResposeCode = nsResponse.status;
-                                    console.log(`232. Line ${i} | NetSuite Response: ${nsResposeCode}`);
-                                    //console.log(`233. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`);
+                                    console.log(`271. Line ${i} | NetSuite Response: ${nsResposeCode}`);
+                                    //console.log(`272. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`);
 
                                     if (nsResposeCode == 200) {
 
@@ -254,12 +289,12 @@ app.get('/products', async (req, res) => {
                                     }
                                 }
 
-                                console.log(`245. Final Items Array Quantity: ${itemsResultArray.length}`); //${JSON.stringify(itemsResultArray)}
+                                console.log(`289. Final Items Array Quantity: ${itemsResultArray.length}`); //${JSON.stringify(itemsResultArray)}
 
                                 if (itemsResultArray.length > 0) {
 
                                     let itemsFilter = itemsResultArray.filter(element => (element.isinstock == true));
-                                    console.log(`250. Items in Stock: ${itemsFilter.length} | ${JSON.stringify(itemsFilter)}`);
+                                    //console.log(`294. Items in Stock: ${itemsFilter.length} | ${JSON.stringify(itemsFilter)}`);
 
                                     let outputArray = [];
 
@@ -283,20 +318,20 @@ app.get('/products', async (req, res) => {
                                             for (let b = 0; b < locationsConfig.length; b++) {
 
                                                 let locationId = locationsConfig[b].nsLocationId;
-                                                console.log(`269. Line: ${i}_${b} | Location: ${locationId}`);
+                                                console.log(`318. Line: ${i}_${b} | Location: ${locationId}`);
                                                 let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
                                                 let locationStockMax = parseFloat(locationsConfig[b].stockMax);
-                                                console.log(`272. Line: ${i}_${b} | Location Stock Percent: ${locationStockPercent} | Location Stock Max: ${locationStockMax}`);
+                                                console.log(`321. Line: ${i}_${b} | Location Stock Percent: ${locationStockPercent} | Location Stock Max: ${locationStockMax}`);
 
                                                 let itemLocations = itemsFilter[i].quantityavailable_detail.locations; // Array
-                                                console.log(`275. Line: ${i}_${b} | Item Locations: ${JSON.stringify(itemLocations)}`);
+                                                console.log(`324. Line: ${i}_${b} | Item Locations: ${JSON.stringify(itemLocations)}`);
                                                 let itemLocFilter = itemLocations.filter(element => (element.internalid == locationId));
-                                                console.log(`277. Line: ${i}_${b} | ItemLocFilter: ${JSON.stringify(itemLocFilter)}`);
+                                                console.log(`326. Line: ${i}_${b} | ItemLocFilter: ${JSON.stringify(itemLocFilter)}`);
 
                                                 if (itemLocFilter.length > 0) {
 
                                                     let quantityAvailable = itemLocFilter[0].quantityavailable;
-                                                    console.log(`282. Line: ${i}_${b} | Location Available Quantity: ${quantityAvailable}`);
+                                                    console.log(`331. Line: ${i}_${b} | Location Available Quantity: ${quantityAvailable}`);
 
                                                     if (quantityAvailable > 0 && obj.price != null) {
                                                         obj.in_stock = true;
@@ -307,7 +342,7 @@ app.get('/products', async (req, res) => {
                                             outputArray.push(obj);
                                         }
 
-                                        console.log(`310. Servicio correctamente ejecutado`);
+                                        console.log(`342. Servicio correctamente ejecutado`);
                                         serviceResponse.error = false;
                                         serviceResponse.message = `Solicitud realizada con exito`;
                                         serviceResponse.quantity = outputArray.length;
