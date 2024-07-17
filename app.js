@@ -315,6 +315,8 @@ app.get('/products', async (req, res) => {
                                         res.status(200).json(serviceResponse);
                                     }
                                     else {
+                                        serviceResponse.quantity = 0;
+                                        serviceResponse.items = [];
                                         serviceResponse.message = `No se encontraron articulos en stock.`
                                         res.status(200).json(serviceResponse);
                                     }
