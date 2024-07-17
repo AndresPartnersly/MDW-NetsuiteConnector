@@ -161,6 +161,9 @@ function validateToken(req, res, next) {
 
 //
 app.get('/protected', validateToken, (req, res) => {
+
+    console.log(`Headers: ${JSON.stringify(req.headers)}`);
+
     res.json({
         message: `This is a protected route`,
         username: req[`user`]
@@ -221,9 +224,9 @@ app.get('/products', async (req, res) => {
 
             if (!isEmpty(responseConfig)) {
 
-                let userId = 'xxxxxxxxx';
+                let userId = 'andres.brito@partnersly.com';
                 serviceResponse.customerId = userId;
-                let customerData = responseConfig.filter(element => (element[`customerId`] === userId));
+                let customerData = responseConfig.filter(element => (element[`username`] === userId));
                 //console.log(`224. customerData Result: ${JSON.stringify(customerData)}`);
                 if (customerData.length > 0) {
 
@@ -294,7 +297,7 @@ app.get('/products', async (req, res) => {
                                 if (itemsResultArray.length > 0) {
 
                                     let itemsFilter = itemsResultArray.filter(element => (element.isinstock == true));
-                                    //console.log(`294. Items in Stock: ${itemsFilter.length} | ${JSON.stringify(itemsFilter)}`);
+                                    console.log(`294. Items in Stock: ${itemsFilter.length}`);
 
                                     let outputArray = [];
 
@@ -303,16 +306,77 @@ app.get('/products', async (req, res) => {
 
                                             let obj = {
                                                 id: itemsFilter[i].internalid,
-                                                name: itemsFilter[i].itemid,
-                                                full_name: itemsFilter[i].displayname,
-                                                upc_code: itemsFilter[i].upccode,
+                                                sku: itemsFilter[i].itemid,
+                                                display_name: itemsFilter[i].displayname,
                                                 marca: itemsFilter[i].custitem_marca,
-                                                price: null,
-                                                in_stock: false
+                                                upc_code: itemsFilter[i].upccode
                                             };
+
+                                            if (itemsFilter[i].hasOwnProperty('mpn')) {
+                                                obj.modelo = itemsFilter[i].mpn;
+                                            }
+
+                                            if (itemsFilter[i].hasOwnProperty('vendorname')) {
+                                                obj.vendor_name = itemsFilter[i].vendorname;
+                                            }
+
+                                            obj.in_stock = false;
 
                                             if (itemsFilter[i].hasOwnProperty(priceLevelId)) {
                                                 obj.price = itemsFilter[i][`${priceLevelId}`];
+                                            }
+
+                                            if (itemsFilter[i].hasOwnProperty('taxschedule')) {
+
+                                                let taxResult = null;
+                                                // Valores fijos actualmente
+                                                if (itemsFilter[i].taxschedule == "IVA REDUCIDO") {
+                                                    taxResult = '10.5%';
+                                                    obj.tax = taxResult;
+                                                }
+                                                else if (itemsFilter[i].taxschedule == "IVA GENERAL") {
+                                                    taxResult = '21%';
+                                                    obj.tax = taxResult;
+                                                }
+                                                else if (itemsFilter[i].taxschedule == "IVA ESPECIAL") {
+                                                    taxResult = '27%';
+                                                    obj.tax = taxResult;
+                                                }
+                                                else if (itemsFilter[i].taxschedule == "EXENTO") {
+                                                    taxResult = '0%';
+                                                    obj.tax = taxResult;
+                                                }
+                                            }
+
+                                            if (itemsFilter[i].hasOwnProperty('custitem_3k_porc_imp_int')) {
+                                                obj.imp_interno = itemsFilter[i].custitem_3k_porc_imp_int;
+                                            }
+
+                                            if (itemsFilter[i].hasOwnProperty('custitem_ptly_ancho_cm')) {
+                                                obj.ancho_cm = itemsFilter[i].custitem_ptly_ancho_cm;
+                                            }
+
+                                            if (itemsFilter[i].hasOwnProperty('custitem_ptly_largo_cm')) {
+                                                obj.largo_cm = itemsFilter[i].custitem_ptly_largo_cm;
+                                            }
+
+                                            if (itemsFilter[i].hasOwnProperty('custitem_ptly_alto_cm')) {
+                                                obj.alto_cm = itemsFilter[i].custitem_ptly_alto_cm;
+                                            }
+
+                                            if (itemsFilter[i].hasOwnProperty('custitem_ptly_peso_kg')) {
+                                                obj.peso_kg = itemsFilter[i].custitem_ptly_peso_kg;
+                                            }
+
+                                            if (itemsFilter[i].hasOwnProperty('itemimages_detail')) {
+
+                                                let imagenes = itemsFilter[i].itemimages_detail;
+
+                                                if (imagenes.hasOwnProperty('urls')) {
+                                                    if (imagenes.urls.length > 0) {
+                                                        obj.imagenes = imagenes.urls;
+                                                    }
+                                                }
                                             }
 
                                             for (let b = 0; b < locationsConfig.length; b++) {
@@ -345,12 +409,12 @@ app.get('/products', async (req, res) => {
                                         console.log(`342. Servicio correctamente ejecutado`);
                                         serviceResponse.error = false;
                                         serviceResponse.message = `Solicitud realizada con exito`;
-                                        serviceResponse.quantity = outputArray.length;
+                                        serviceResponse.result = outputArray.length;
                                         serviceResponse.items = outputArray;
                                         res.status(200).json(serviceResponse);
                                     }
                                     else {
-                                        serviceResponse.quantity = 0;
+                                        serviceResponse.result = 0;
                                         serviceResponse.items = [];
                                         serviceResponse.message = `No se encontraron articulos en stock.`
                                         res.status(200).json(serviceResponse);
