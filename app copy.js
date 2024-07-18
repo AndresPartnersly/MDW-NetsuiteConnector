@@ -13,8 +13,8 @@ app.use(bodyParser.json());
 // Configuración de OAuth 1.0
 const oauth = OAuth({
     consumer: {
-        key: 'f1250b94561332f973c967ac353d69b3a59032a535fcad7ace371b0938120b78',
-        secret: '2ab9d5ad5e24dfba8b0e38c8b6e400455ef307472b4d53185ff0fa7c18e34598'
+        key: '',
+        secret: ''
     },
     signature_method: 'HMAC-SHA256',
     hash_function(base_string, key) {
@@ -24,8 +24,8 @@ const oauth = OAuth({
 
 // Token de acceso
 const token = {
-    key: '10c915943c84affea592c7807883f556898de53e91d7d62914b8da99c9d17e5b',
-    secret: '85df6afaef8562b674069720ee96572b47a8b52a5dc5dfe48fa2bef8641cbfe9'
+    key: '',
+    secret: ''
 };
 
 app.post('/call-netsuite', (req, res) => {
