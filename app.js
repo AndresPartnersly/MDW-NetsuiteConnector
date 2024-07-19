@@ -187,7 +187,7 @@ app.post('/update_config_file', async (req, res) => {
     try {
 
         const reqBody = req.body;
-        //console.log(`180. Request Body: ${JSON.stringify(reqBody)}`);
+        console.log(`180. Request Body: ${JSON.stringify(reqBody)}`);
 
         if (reqBody.hasOwnProperty('data')) {
 
