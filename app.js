@@ -9,6 +9,8 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const { get } = require('https');
 const { is } = require('express/lib/request');
+const fs = require('fs');
+const path = require('path');
 dotenv.config();
 
 // Creación de una instancia de Express para gestionar las solicitudes HTTP.
@@ -19,6 +21,7 @@ const USERS_DATA = process.env.USERS_DATA;
 const PRODUCT_CONFIGURATION = process.env.PRODUCT_CONFIGURATION;
 const BASE_URL = process.env.BASE_URL;
 const FIELDSET = process.env.FIELDSET;
+const filePath = path.resolve(process.env.DATABASE_PATH);
 
 // Middleware de Express para analizar cuerpos de solicitud JSON automáticamente.
 app.use(bodyParser.json());
@@ -32,28 +35,9 @@ axiosRetry(http, {
 //Configuración por defecto.
 let http = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 60000 });
 
-app.post('/netsuite-trigger', async (req, res) => {
-
-    const data = req.body; // Datos recibidos en el cuerpo de la solicitud.
-    const arrayId = data['arrayId']; // Array de IDs que se obtienen del cuerpo de la solicitud.
-
-    http = rateLimit(axios.create(), { maxRequests: data['maxRequests'], perMilliseconds: data['perMilliseconds'] });
-
-    console.log(`retries: ${data['retries']} - maxRequests: ${data['maxRequests']} - perMilliseconds: ${data['perMilliseconds']}`)
-    // Configuración de reintentos automáticos para el cliente Axios para manejar fallos temporales en las peticiones.
-    axiosRetry(http, {
-        retries: data['retries']
-    });
-
-    // Verifica si el arrayId es válido y contiene elementos.
-    if (!arrayId || arrayId.length === 0) {
-        return res.status(400).json({ error: "No se recibieron elementos en el atributo 'arrayId'." });
-    }
-
-    // Responder inmediatamente al cliente que la solicitud ha sido recibida
-    res.status(202).json({ status: 202, error: false, details: `Solicitud recibida, procesando información.` });
-    // Continuar con el procesamiento en segundo plano
-    processRequest(data, arrayId);
+// Inicia el servidor en el puerto especificado y muestra un mensaje en la consola.
+app.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`);
 });
 
 function processRequest(data, arrayId) {
@@ -103,6 +87,51 @@ function processRequest(data, arrayId) {
         });
 }
 
+function validateToken(req, res, next) {
+
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    console.log(`150. Access Token: ${JSON.stringify(token)}`);
+
+    if (!token) res.status(401).send(`Access denegado, no se recibio token de autorización`);
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            console.log(`156. Error: ${JSON.stringify(err)}`)
+            res.status(401).send(`Access denied, token expirado or incorrecto`)
+        }
+        else {
+            req.user = user;
+            next();
+        }
+    });
+}
+
+app.post('/netsuite-trigger', async (req, res) => {
+
+    const data = req.body; // Datos recibidos en el cuerpo de la solicitud.
+    const arrayId = data['arrayId']; // Array de IDs que se obtienen del cuerpo de la solicitud.
+
+    http = rateLimit(axios.create(), { maxRequests: data['maxRequests'], perMilliseconds: data['perMilliseconds'] });
+
+    console.log(`retries: ${data['retries']} - maxRequests: ${data['maxRequests']} - perMilliseconds: ${data['perMilliseconds']}`)
+    // Configuración de reintentos automáticos para el cliente Axios para manejar fallos temporales en las peticiones.
+    axiosRetry(http, {
+        retries: data['retries']
+    });
+
+    // Verifica si el arrayId es válido y contiene elementos.
+    if (!arrayId || arrayId.length === 0) {
+        return res.status(400).json({ error: "No se recibieron elementos en el atributo 'arrayId'." });
+    }
+
+    // Responder inmediatamente al cliente que la solicitud ha sido recibida
+    res.status(202).json({ status: 202, error: false, details: `Solicitud recibida, procesando información.` });
+    // Continuar con el procesamiento en segundo plano
+    processRequest(data, arrayId);
+});
+
 // Ruta de inicio de sesión para obtener un token JWT
 app.post('/login', async (req, res) => {
 
@@ -143,26 +172,102 @@ app.post('/login', async (req, res) => {
     }*/
 });
 
-function validateToken(req, res, next) {
+app.post('/update_config_file', async (req, res) => {
 
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    let serviceResponse = { error: true, message: `` }
 
-    console.log(`150. Access Token: ${JSON.stringify(token)}`);
+    try {
 
-    if (!token) res.status(401).send(`Access denegado, no se recibio token de autorización`);
+        const reqBody = req.body;
+        //console.log(`180. Request Body: ${JSON.stringify(reqBody)}`);
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            console.log(`156. Error: ${JSON.stringify(err)}`)
-            res.status(401).send(`Access denied, token expirado or incorrecto`)
+        if (reqBody.hasOwnProperty('data')) {
+
+            let newContent = reqBody.data;
+            console.log(`187. Configuration Array (${newContent.length}): ${JSON.stringify(newContent)}`);
+
+            if (Array.isArray(newContent) && newContent.length > 0) {
+
+                let continueValidator = true;
+
+                for (let i = 0; i < newContent.length; i++) {
+
+                    let object = newContent[i];
+                    console.log(`196. ${typeof newContent[i].user}`);
+                    if (object.hasOwnProperty('user')) {
+                        if (typeof newContent[i].user != 'string' || newContent[i].user == '') {
+                            continueValidator = false;
+                            serviceResponse.message = `El atributo 'user' en posicion ${i} debe ser de tipo string y no estar vacio`;
+                            break;
+                        }
+                    }
+                    else {
+                        continueValidator = false;
+                        serviceResponse.message = `El objeto en posicion ${i} no tiene atributo 'user'.`;
+                        break;
+                    }
+                    if (object.hasOwnProperty('configuration')) {
+                        if (!Array.isArray(newContent[i].configuration) || newContent[i].configuration.length <= 0) {
+                            continueValidator = false;
+                            serviceResponse.message = `El atributo 'configuration' en posicion ${i} debe ser un array y contener por lo menos un objeto.`;
+                            break;
+                        }
+                    }
+                    else {
+                        continueValidator = false;
+                        serviceResponse.message = `El objeto en posicion ${i} no tiene atributo 'configuration'.`;
+                        break;
+                    }
+                }
+
+                if (continueValidator == true) {
+
+                    let textContent = newContent.map(obj => JSON.stringify(obj)).join('\n');
+
+                    if (isEmpty(textContent)) {
+                        serviceResponse.message = 'No se pudo procesar el contenido recibido.'
+                        console.error(`Response code: 500 | ${serviceResponse.message}`);
+                        return res.status(500).json(serviceResponse);
+                    }
+                    else {
+                        fs.writeFile(filePath, textContent, (err) => {
+
+                            if (err) {
+                                serviceResponse.message = 'Error al sobreescribir el archivo.'
+                                console.error(`Response code: 500 | ${serviceResponse.message}`);
+                                return res.status(500).json(serviceResponse);
+                            }
+                            else {
+                                serviceResponse.message = 'Archivo actualizado exitosamente.';
+                                console.log(`198. Response code: 200 | ${serviceResponse.message}`);
+                                res.status(200).json(serviceResponse);
+                            }
+                        });
+                    }
+                }
+                else {
+                    console.error(`Response code: 400 | ${serviceResponse.message}`);
+                    return res.status(400).json(serviceResponse);
+                }
+            }
+            else {
+                serviceResponse.message = `El atributo 'data' debe ser un array de objetos y no puede estar vacio`;
+                console.error(`Response code: 500 | ${serviceResponse.message}`);
+                return res.status(500).json(serviceResponse);
+            }
         }
         else {
-            req.user = user;
-            next();
+            serviceResponse.message = `Se debe incluir el atributo 'data' en el body de la solicitud`;
+            console.error(`Response code: 400 | ${serviceResponse.message}`);
+            return res.status(400).json(serviceResponse);
         }
-    });
-}
+    }
+    catch (e) {
+        serviceResponse.message = `${e.message}`;
+        console.error(`Error: ${e.message}`);
+        res.status(500).json(serviceResponse);
+    }
+});
 
 //
 app.get('/protected', validateToken, (req, res) => {
@@ -180,7 +285,7 @@ app.get('/protected', validateToken, (req, res) => {
 app.get('/products', validateToken, async (req, res) => {
 
     let expectedHeaders = {
-        user: null, 
+        user: null,
         password: null
     } // Variable unicamente utilizada como referencia
 
@@ -196,7 +301,7 @@ app.get('/products', validateToken, async (req, res) => {
         console.log(`186. Request Credentials Index | User: ${JSON.stringify(requestUser)} | Password: ${JSON.stringify(requestPassword)}`);
 
         if (!isEmpty(requestUser) && !isEmpty(requestPassword)) {
-            
+
             let userId = requestUser;
             let usersDataQuery = await axios.get(USERS_DATA); // Se obtiene informacion de base de datos de clientes
             let usersDataparsedResponse = usersDataQuery.data;
@@ -210,249 +315,236 @@ app.get('/products', validateToken, async (req, res) => {
                 console.log(`200. User Filter: ${JSON.stringify(usersDataFilter)}`);
 
                 if (usersDataFilter.length > 0) {
-                    
-                    console.log(`204. Usuario autenticado.`);
 
-                    let respProductConfig = await axios.get(PRODUCT_CONFIGURATION);
-                    let parsedResponse = respProductConfig.data;
-                    let responseCode = respProductConfig.status;
-                    //console.log(`211. Response: ${parsedResponse}`);
-                    console.log(`212. Product configuration query status => ${responseCode}`);
+                    console.log(`204. Usuario autenticado correctamente.`);
+                    let parsedResponse = await leerArchivoYParsearJSON(filePath);
+                    //console.log(`212. Database File (${parsedResponse.length}): ${JSON.stringify(parsedResponse)}`);
 
-                    if (responseCode == 200) {
+                    if (!isEmpty(parsedResponse)) {
 
-                        let responseConfig = parsedResponse.configuration;
-                        //console.log(`217. Response Config: ${JSON.stringify(responseConfig)}`);
+                        serviceResponse.customerId = userId;
+                        let customerData = parsedResponse.filter(element => (element[`user`] === userId));
+                        console.log(`224. customerData Result: ${JSON.stringify(customerData)}`);
+                        if (customerData.length > 0) {
 
-                        if (!isEmpty(responseConfig)) {
+                            let customerId = customerData[0].user;
+                            console.log(`228. Autenticación satisfactoria | Usuario: ${customerId}.`);
+                            let customerConfiguration = customerData[0].configuration;
 
-                            serviceResponse.customerId = userId;
-                            let customerData = responseConfig.filter(element => (element[`user`] === userId));
-                            //console.log(`224. customerData Result: ${JSON.stringify(customerData)}`);
-                            if (customerData.length > 0) {
+                            let locationsConfig = customerConfiguration[0].configLocationData; // Array
+                            console.log(`231. Locations Config: ${JSON.stringify(locationsConfig)}`);
 
-                                let customerId = customerData[0].customerId;
-                                console.log(`228. Autenticación satisfactoria | Usuario: ${customerId}.`);
+                            if (!isEmpty(locationsConfig)) {
 
-                                let locationsConfig = customerData[0].configLocationData; // Array
-                                console.log(`231. Locations Config: ${JSON.stringify(locationsConfig)}`);
+                                let priceLevelConfig = customerConfiguration[0].configPriceLevelData; // Array
+                                console.log(`236. Price Level Config: ${JSON.stringify(priceLevelConfig)}`);
 
-                                if (!isEmpty(locationsConfig)) {
+                                if (!isEmpty(priceLevelConfig)) {
 
-                                    let priceLevelConfig = customerData[0].configPriceLevelData; // Array
-                                    console.log(`236. Price Level Config: ${JSON.stringify(priceLevelConfig)}`);
+                                    let priceLevelId = priceLevelConfig[0].priceLevelId;
+                                    let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset=0`;
+                                    console.log(`242. BaseUrl: ${baseUrl}`);
+                                    let itemsParameter = customerConfiguration[0].itemsId;
+                                    let customerItemsArray = itemsParameter.split(',');
+                                    let customerItemsQty = customerItemsArray.length;
+                                    console.log(`246. Items disponibles para el cliente ${customerItemsQty}`)//: ${JSON.stringify(customerItemsArray)})
 
-                                    if (!isEmpty(priceLevelConfig)) {
+                                    if (!isEmpty(itemsParameter) && !isEmpty(customerItemsArray)) {
 
-                                        let priceLevelId = priceLevelConfig[0].priceLevelId;
-                                        let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset=0`;
-                                        console.log(`242. BaseUrl: ${baseUrl}`);
-                                        let itemsParameter = customerData[0].itemsId;
-                                        let customerItemsArray = itemsParameter.split(',');
-                                        let customerItemsQty = customerItemsArray.length;
-                                        console.log(`246. Items disponibles para el cliente ${customerItemsQty}`)//: ${JSON.stringify(customerItemsArray)})
+                                        let cantidadIteraciones = 1;
+                                        let itemsProcesar = null;
+                                        let itemsResultArray = [];
 
-                                        if (!isEmpty(itemsParameter) && !isEmpty(customerItemsArray)) {
+                                        if (customerItemsQty > 100) {
+                                            itemsProcesar = arraySplit(customerItemsArray, 100);
+                                            //console.log(`256. Items a procesar: ${JSON.stringify(itemsProcesar)}`);
+                                            cantidadIteraciones = itemsProcesar.length;
+                                        }
 
-                                            let cantidadIteraciones = 1;
-                                            let itemsProcesar = null;
-                                            let itemsResultArray = [];
+                                        console.log(`260. Cantidad de iteraciones: ${cantidadIteraciones}`);
 
-                                            if (customerItemsQty > 100) {
-                                                itemsProcesar = arraySplit(customerItemsArray, 100);
-                                                //console.log(`256. Items a procesar: ${JSON.stringify(itemsProcesar)}`);
-                                                cantidadIteraciones = itemsProcesar.length;
-                                            }
+                                        for (let i = 0; i < cantidadIteraciones; i++) {
 
-                                            console.log(`260. Cantidad de iteraciones: ${cantidadIteraciones}`);
+                                            //console.log(`264. Line: ${i} | Ids a procesar (${itemsProcesar[i].length}): ${JSON.stringify(itemsProcesar[i])}`);
+                                            let itemsIds = itemsProcesar[i].toString().replace(`"`, ``).replace(`[`, ``).replace(`]`, ``);
+                                            //console.log(`266. ItemIds: ${itemsIds}`);
+                                            let nsRequestUrl = `${baseUrl}&id=${itemsIds}`;
+                                            const nsResponse = await axios.get(nsRequestUrl);
+                                            let nsResponseData = nsResponse.data;
+                                            let nsResposeCode = nsResponse.status;
+                                            console.log(`271. Line ${i} | NetSuite Response: ${nsResposeCode}`);
+                                            //console.log(`272. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`);
 
-                                            for (let i = 0; i < cantidadIteraciones; i++) {
+                                            if (nsResposeCode == 200) {
 
-                                                //console.log(`264. Line: ${i} | Ids a procesar (${itemsProcesar[i].length}): ${JSON.stringify(itemsProcesar[i])}`);
-                                                let itemsIds = itemsProcesar[i].toString().replace(`"`, ``).replace(`[`, ``).replace(`]`, ``);
-                                                //console.log(`266. ItemIds: ${itemsIds}`);
-                                                let nsRequestUrl = `${baseUrl}&id=${itemsIds}`;
-                                                const nsResponse = await axios.get(nsRequestUrl);
-                                                let nsResponseData = nsResponse.data;
-                                                let nsResposeCode = nsResponse.status;
-                                                console.log(`271. Line ${i} | NetSuite Response: ${nsResposeCode}`);
-                                                //console.log(`272. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`);
+                                                let nsResponseItems = nsResponseData.items;
+                                                console.log(`238. Line ${i} | NetSuite Response Items Quantity: ${nsResponseItems.length}`);
 
-                                                if (nsResposeCode == 200) {
-
-                                                    let nsResponseItems = nsResponseData.items;
-                                                    console.log(`238. Line ${i} | NetSuite Response Items Quantity: ${nsResponseItems.length}`);
-
-                                                    if (nsResponseItems.length > 0) {
-                                                        itemsResultArray = itemsResultArray.concat(nsResponseItems);
-                                                    }
-                                                }
-                                                else {
-                                                    serviceResponse.message = `Error: el servicio de SuiteCommerce no se ejecuto correctamente. Code: ${nsResposeCode}.`
-                                                    res.status(401).json(serviceResponse);
-                                                }
-                                            }
-
-                                            console.log(`289. Final Items Array Quantity: ${itemsResultArray.length}`); //${JSON.stringify(itemsResultArray)}
-
-                                            if (itemsResultArray.length > 0) {
-
-                                                let itemsFilter = itemsResultArray.filter(element => (element.isinstock == true));
-                                                console.log(`294. Items in Stock: ${itemsFilter.length}`);
-
-                                                let outputArray = [];
-
-                                                if (itemsFilter.length > 0) {
-                                                    for (let i = 0; i < itemsFilter.length; i++) {
-
-                                                        let obj = {
-                                                            id: itemsFilter[i].internalid,
-                                                            sku: itemsFilter[i].itemid,
-                                                            display_name: itemsFilter[i].displayname,
-                                                            marca: itemsFilter[i].custitem_marca,
-                                                            upc_code: itemsFilter[i].upccode
-                                                        };
-
-                                                        if (itemsFilter[i].hasOwnProperty('mpn')) {
-                                                            obj.modelo = itemsFilter[i].mpn;
-                                                        }
-
-                                                        if (itemsFilter[i].hasOwnProperty('vendorname')) {
-                                                            obj.vendor_name = itemsFilter[i].vendorname;
-                                                        }
-
-                                                        obj.in_stock = false;
-
-                                                        if (itemsFilter[i].hasOwnProperty(priceLevelId)) {
-                                                            obj.price = itemsFilter[i][`${priceLevelId}`];
-                                                        }
-
-                                                        if (itemsFilter[i].hasOwnProperty('taxschedule')) {
-
-                                                            let taxResult = null;
-                                                            // Valores fijos actualmente
-                                                            if (itemsFilter[i].taxschedule == "IVA REDUCIDO") {
-                                                                taxResult = '10.5%';
-                                                                obj.tax = taxResult;
-                                                            }
-                                                            else if (itemsFilter[i].taxschedule == "IVA GENERAL") {
-                                                                taxResult = '21%';
-                                                                obj.tax = taxResult;
-                                                            }
-                                                            else if (itemsFilter[i].taxschedule == "IVA ESPECIAL") {
-                                                                taxResult = '27%';
-                                                                obj.tax = taxResult;
-                                                            }
-                                                            else if (itemsFilter[i].taxschedule == "EXENTO") {
-                                                                taxResult = '0%';
-                                                                obj.tax = taxResult;
-                                                            }
-                                                        }
-
-                                                        if (itemsFilter[i].hasOwnProperty('custitem_3k_porc_imp_int')) {
-                                                            obj.imp_interno = itemsFilter[i].custitem_3k_porc_imp_int;
-                                                        }
-
-                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_ancho_cm')) {
-                                                            obj.ancho_cm = itemsFilter[i].custitem_ptly_ancho_cm;
-                                                        }
-
-                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_largo_cm')) {
-                                                            obj.largo_cm = itemsFilter[i].custitem_ptly_largo_cm;
-                                                        }
-
-                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_alto_cm')) {
-                                                            obj.alto_cm = itemsFilter[i].custitem_ptly_alto_cm;
-                                                        }
-
-                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_peso_kg')) {
-                                                            obj.peso_kg = itemsFilter[i].custitem_ptly_peso_kg;
-                                                        }
-
-                                                        if (itemsFilter[i].hasOwnProperty('itemimages_detail')) {
-
-                                                            let imagenes = itemsFilter[i].itemimages_detail;
-
-                                                            if (imagenes.hasOwnProperty('urls')) {
-                                                                if (imagenes.urls.length > 0) {
-                                                                    obj.imagenes = imagenes.urls;
-                                                                }
-                                                            }
-                                                        }
-
-                                                        for (let b = 0; b < locationsConfig.length; b++) {
-
-                                                            let locationId = locationsConfig[b].nsLocationId;
-                                                            console.log(`318. Line: ${i}_${b} | Location: ${locationId}`);
-                                                            let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
-                                                            let locationStockMax = parseFloat(locationsConfig[b].stockMax);
-                                                            console.log(`321. Line: ${i}_${b} | Location Stock Percent: ${locationStockPercent} | Location Stock Max: ${locationStockMax}`);
-
-                                                            let itemLocations = itemsFilter[i].quantityavailable_detail.locations; // Array
-                                                            console.log(`324. Line: ${i}_${b} | Item Locations: ${JSON.stringify(itemLocations)}`);
-                                                            let itemLocFilter = itemLocations.filter(element => (element.internalid == locationId));
-                                                            console.log(`326. Line: ${i}_${b} | ItemLocFilter: ${JSON.stringify(itemLocFilter)}`);
-
-                                                            if (itemLocFilter.length > 0) {
-
-                                                                let quantityAvailable = itemLocFilter[0].quantityavailable;
-                                                                console.log(`331. Line: ${i}_${b} | Location Available Quantity: ${quantityAvailable}`);
-
-                                                                if (quantityAvailable > 0 && obj.price != null) {
-                                                                    obj.in_stock = true;
-                                                                    break;
-                                                                }
-                                                            }
-                                                        }
-                                                        outputArray.push(obj);
-                                                    }
-
-                                                    console.log(`410. Servicio correctamente ejecutado`);
-                                                    serviceResponse.error = false;
-                                                    serviceResponse.message = `Solicitud realizada con exito`;
-                                                    serviceResponse.result = outputArray.length;
-                                                    serviceResponse.items = outputArray;
-                                                    res.status(200).json(serviceResponse);
-                                                }
-                                                else {
-                                                    serviceResponse.result = 0;
-                                                    serviceResponse.items = [];
-                                                    serviceResponse.message = `No se encontraron articulos en stock.`
-                                                    res.status(204).json(serviceResponse);
+                                                if (nsResponseItems.length > 0) {
+                                                    itemsResultArray = itemsResultArray.concat(nsResponseItems);
                                                 }
                                             }
                                             else {
-                                                serviceResponse.message = `No se pudo encontro ninguno de los articulos asociados a cuenta del cliente.`
-                                                res.status(500).json(serviceResponse);
+                                                serviceResponse.message = `Error: el servicio de SuiteCommerce no se ejecuto correctamente. Code: ${nsResposeCode}.`
+                                                res.status(401).json(serviceResponse);
+                                            }
+                                        }
+
+                                        console.log(`289. Final Items Array Quantity: ${itemsResultArray.length}`); //${JSON.stringify(itemsResultArray)}
+
+                                        if (itemsResultArray.length > 0) {
+
+                                            let itemsFilter = itemsResultArray.filter(element => (element.isinstock == true));
+                                            console.log(`294. Items in Stock: ${itemsFilter.length}`);
+
+                                            let outputArray = [];
+
+                                            if (itemsFilter.length > 0) {
+                                                for (let i = 0; i < itemsFilter.length; i++) {
+
+                                                    let obj = {
+                                                        id: itemsFilter[i].internalid,
+                                                        sku: itemsFilter[i].itemid,
+                                                        display_name: itemsFilter[i].displayname,
+                                                        marca: itemsFilter[i].custitem_marca,
+                                                        upc_code: itemsFilter[i].upccode
+                                                    };
+
+                                                    if (itemsFilter[i].hasOwnProperty('mpn')) {
+                                                        obj.modelo = itemsFilter[i].mpn;
+                                                    }
+
+                                                    if (itemsFilter[i].hasOwnProperty('vendorname')) {
+                                                        obj.vendor_name = itemsFilter[i].vendorname;
+                                                    }
+
+                                                    obj.in_stock = false;
+
+                                                    if (itemsFilter[i].hasOwnProperty(priceLevelId)) {
+                                                        obj.price = itemsFilter[i][`${priceLevelId}`];
+                                                    }
+
+                                                    if (itemsFilter[i].hasOwnProperty('taxschedule')) {
+
+                                                        let taxResult = null;
+                                                        // Valores fijos actualmente
+                                                        if (itemsFilter[i].taxschedule == "IVA REDUCIDO") {
+                                                            taxResult = '10.5%';
+                                                            obj.tax = taxResult;
+                                                        }
+                                                        else if (itemsFilter[i].taxschedule == "IVA GENERAL") {
+                                                            taxResult = '21%';
+                                                            obj.tax = taxResult;
+                                                        }
+                                                        else if (itemsFilter[i].taxschedule == "IVA ESPECIAL") {
+                                                            taxResult = '27%';
+                                                            obj.tax = taxResult;
+                                                        }
+                                                        else if (itemsFilter[i].taxschedule == "EXENTO") {
+                                                            taxResult = '0%';
+                                                            obj.tax = taxResult;
+                                                        }
+                                                    }
+
+                                                    if (itemsFilter[i].hasOwnProperty('custitem_3k_porc_imp_int')) {
+                                                        obj.imp_interno = itemsFilter[i].custitem_3k_porc_imp_int;
+                                                    }
+
+                                                    if (itemsFilter[i].hasOwnProperty('custitem_ptly_ancho_cm')) {
+                                                        obj.ancho_cm = itemsFilter[i].custitem_ptly_ancho_cm;
+                                                    }
+
+                                                    if (itemsFilter[i].hasOwnProperty('custitem_ptly_largo_cm')) {
+                                                        obj.largo_cm = itemsFilter[i].custitem_ptly_largo_cm;
+                                                    }
+
+                                                    if (itemsFilter[i].hasOwnProperty('custitem_ptly_alto_cm')) {
+                                                        obj.alto_cm = itemsFilter[i].custitem_ptly_alto_cm;
+                                                    }
+
+                                                    if (itemsFilter[i].hasOwnProperty('custitem_ptly_peso_kg')) {
+                                                        obj.peso_kg = itemsFilter[i].custitem_ptly_peso_kg;
+                                                    }
+
+                                                    if (itemsFilter[i].hasOwnProperty('itemimages_detail')) {
+
+                                                        let imagenes = itemsFilter[i].itemimages_detail;
+
+                                                        if (imagenes.hasOwnProperty('urls')) {
+                                                            if (imagenes.urls.length > 0) {
+                                                                obj.imagenes = imagenes.urls;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    for (let b = 0; b < locationsConfig.length; b++) {
+
+                                                        let locationId = locationsConfig[b].nsLocationId;
+                                                        console.log(`318. Line: ${i}_${b} | Location: ${locationId}`);
+                                                        let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
+                                                        let locationStockMax = parseFloat(locationsConfig[b].stockMax);
+                                                        console.log(`321. Line: ${i}_${b} | Location Stock Percent: ${locationStockPercent} | Location Stock Max: ${locationStockMax}`);
+
+                                                        let itemLocations = itemsFilter[i].quantityavailable_detail.locations; // Array
+                                                        console.log(`324. Line: ${i}_${b} | Item Locations: ${JSON.stringify(itemLocations)}`);
+                                                        let itemLocFilter = itemLocations.filter(element => (element.internalid == locationId));
+                                                        console.log(`326. Line: ${i}_${b} | ItemLocFilter: ${JSON.stringify(itemLocFilter)}`);
+
+                                                        if (itemLocFilter.length > 0) {
+
+                                                            let quantityAvailable = itemLocFilter[0].quantityavailable;
+                                                            console.log(`331. Line: ${i}_${b} | Location Available Quantity: ${quantityAvailable}`);
+
+                                                            if (quantityAvailable > 0 && obj.price != null) {
+                                                                obj.in_stock = true;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    outputArray.push(obj);
+                                                }
+
+                                                console.log(`410. Servicio correctamente ejecutado`);
+                                                serviceResponse.error = false;
+                                                serviceResponse.message = `Solicitud realizada con exito`;
+                                                serviceResponse.result = outputArray.length;
+                                                serviceResponse.items = outputArray;
+                                                res.status(200).json(serviceResponse);
+                                            }
+                                            else {
+                                                serviceResponse.result = 0;
+                                                serviceResponse.items = [];
+                                                serviceResponse.message = `No se encontraron articulos en stock.`
+                                                res.status(204).json(serviceResponse);
                                             }
                                         }
                                         else {
-                                            serviceResponse.message = `No se pudo obtener configuracion de articulos disponibles.`
+                                            serviceResponse.message = `No se pudo encontro ninguno de los articulos asociados a cuenta del cliente.`
                                             res.status(500).json(serviceResponse);
                                         }
                                     }
                                     else {
-                                        serviceResponse.message = `No se pudo obtener configuracion de listas de precios.`
+                                        serviceResponse.message = `No se pudo obtener configuracion de articulos disponibles.`
                                         res.status(500).json(serviceResponse);
                                     }
                                 }
                                 else {
-                                    serviceResponse.message = `No se pudo obtener configuracion de localizaciones.`
+                                    serviceResponse.message = `No se pudo obtener configuracion de listas de precios.`
                                     res.status(500).json(serviceResponse);
                                 }
                             }
                             else {
-                                serviceResponse.message = `No se encontro configuracion para el usuario autenticado.`
+                                serviceResponse.message = `No se pudo obtener configuracion de localizaciones.`
                                 res.status(500).json(serviceResponse);
                             }
                         }
                         else {
-                            serviceResponse.message = `No se pudo obtener atributo de configuracion de usuarios.`
+                            serviceResponse.message = `No se encontro configuracion para el usuario autenticado.`
                             res.status(500).json(serviceResponse);
                         }
                     }
                     else {
-                        serviceResponse.message = `No se pudo consultar configuracion de usuarios.`
+                        serviceResponse.message = `No se pudo consultar base de datos de usuarios.`
                         res.status(500).json(serviceResponse);
                     }
                 }
@@ -490,11 +582,6 @@ app.get('/products', validateToken, async (req, res) => {
     }
 });
 
-// Inicia el servidor en el puerto especificado y muestra un mensaje en la consola.
-app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
-});
-
 let isEmpty = (value) => {
 
     if (value === ``)
@@ -522,3 +609,22 @@ let arraySplit = (array, chunkSize) => {
     }
     return chunks;
 }
+
+let leerArchivoYParsearJSON = (filePath) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) {
+                console.error(`Error al parsear archivo Database.txt | Details: ${JSON.stringify(err)}`);
+                reject(null);
+            }
+
+            try {
+                const contenidoJSON = data.split('\n').filter(line => line.trim()).map(line => JSON.parse(line));
+                resolve(contenidoJSON);
+            } catch (err) {
+                console.error(`Error al parsear archivo Database.txt | Details: ${err.message}`);
+                reject(null);
+            }
+        });
+    });
+};
