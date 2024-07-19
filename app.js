@@ -159,7 +159,7 @@ app.post('/login', async (req, res) => {
                 res.json({ error: false, message: `Usuario autenticado`, token: accessToken });
             }
             else {
-                res.status(401).json({ error: true, message: `Usuario & contraseña incorrecta`, token: null });
+                res.status(401).json({ error: true, message: `Usuario o contraseña incorrecta`, token: null });
             }
         }
     }
@@ -167,7 +167,6 @@ app.post('/login', async (req, res) => {
         res.status(401).json({ error: true, message: `Error al consultar usuario y contraseña`, token: null });
     }
     /*// En un entorno real, deberías verificar el usuario y la contraseña con la base de datos
-
 
     if (username === `user` && password === `password`)
     {
@@ -187,12 +186,12 @@ app.post('/update_config_file', async (req, res) => {
     try {
 
         const reqBody = req.body;
-        console.log(`180. Request Body: ${JSON.stringify(reqBody)}`);
+        console.log(`180. Request Body Length: ${reqBody.length}`);
 
         if (reqBody.hasOwnProperty('data')) {
 
             let newContent = reqBody.data;
-            console.log(`187. Configuration Array (${newContent.length}): ${JSON.stringify(newContent)}`);
+            console.log(`187. Configuration Array Length: ${newContent.length}`);
 
             if (Array.isArray(newContent) && newContent.length > 0) {
 
@@ -230,7 +229,8 @@ app.post('/update_config_file', async (req, res) => {
 
                 if (continueValidator == true) {
 
-                    let textContent = newContent.map(obj => JSON.stringify(obj)).join('\n');
+                    console.log(`New Content: ${JSON.stringify(newContent)}`);
+                    let textContent = JSON.stringify(newContent);
 
                     if (isEmpty(textContent)) {
                         serviceResponse.message = 'No se pudo procesar el contenido recibido.'
@@ -246,6 +246,7 @@ app.post('/update_config_file', async (req, res) => {
                                 return res.status(500).json(serviceResponse);
                             }
                             else {
+                                serviceResponse.error = false;
                                 serviceResponse.message = 'Archivo actualizado exitosamente.';
                                 console.log(`198. Response code: 200 | ${serviceResponse.message}`);
                                 res.status(200).json(serviceResponse);
@@ -326,7 +327,7 @@ app.get('/products', validateToken, async (req, res) => {
 
                     console.log(`204. Usuario autenticado correctamente.`);
                     let parsedResponse = await leerArchivoYParsearJSON(filePath);
-                    //console.log(`212. Database File (${parsedResponse.length}): ${JSON.stringify(parsedResponse)}`);
+                    console.log(`212. Database File (${parsedResponse.length}): ${JSON.stringify(parsedResponse)}`);
 
                     if (!isEmpty(parsedResponse)) {
 
@@ -349,7 +350,7 @@ app.get('/products', validateToken, async (req, res) => {
                                 if (!isEmpty(priceLevelConfig)) {
 
                                     let priceLevelId = priceLevelConfig[0].priceLevelId;
-                                    let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset=0`;
+                                    let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset=0&currency=USD`;
                                     console.log(`242. BaseUrl: ${baseUrl}`);
                                     let itemsParameter = customerConfiguration[0].itemsId;
                                     let customerItemsArray = itemsParameter.split(',');
@@ -626,7 +627,7 @@ let leerArchivoYParsearJSON = (filePath) => {
             }
 
             try {
-                const contenidoJSON = data.split('\n').filter(line => line.trim()).map(line => JSON.parse(line));
+                const contenidoJSON = JSON.parse(data);
                 resolve(contenidoJSON);
             } catch (err) {
                 console.error(`Error al parsear archivo Database.txt | Details: ${err.message}`);
