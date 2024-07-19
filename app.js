@@ -89,23 +89,31 @@ function processRequest(data, arrayId) {
 
 function validateToken(req, res, next) {
 
+    let serviceResponse = { error: true, message: ``, token: null }
+
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     console.log(`150. Access Token: ${JSON.stringify(token)}`);
 
-    if (!token) res.status(401).send(`Access denegado, no se recibio token de autorización`);
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            console.log(`156. Error: ${JSON.stringify(err)}`)
-            res.status(401).send(`Access denied, token expirado or incorrecto`)
-        }
-        else {
-            req.user = user;
-            next();
-        }
-    });
+    if (!token) {
+        serviceResponse.message = `Access denegado, no se recibio token de autorización`;
+        res.status(401).json(serviceResponse);
+    }
+    else {
+        jwt.verify(token, JWT_SECRET, (err, user) => {
+            if (err) {
+                console.log(`156. Error: ${JSON.stringify(err)}`);
+                serviceResponse.message = `Acceso denegado, token expirado o incorrecto`;
+                res.status(401).json(serviceResponse);
+            }
+            else {
+                req.user = user;
+                next();
+            }
+        });
+    }
 }
 
 app.post('/netsuite-trigger', async (req, res) => {
@@ -289,7 +297,7 @@ app.get('/products', validateToken, async (req, res) => {
         password: null
     } // Variable unicamente utilizada como referencia
 
-    let serviceResponse = { error: true, message: ``, customerId: null };
+    let serviceResponse = { error: true, message: `` };
     let requestHeaders = req.headers;
     //console.log(`180. Request Data: ${req}`); No se puede logear objeto por dependencia circular
     console.log(`181. Request Headers: ${JSON.stringify(requestHeaders)}`);
@@ -322,7 +330,6 @@ app.get('/products', validateToken, async (req, res) => {
 
                     if (!isEmpty(parsedResponse)) {
 
-                        serviceResponse.customerId = userId;
                         let customerData = parsedResponse.filter(element => (element[`user`] === userId));
                         console.log(`224. customerData Result: ${JSON.stringify(customerData)}`);
                         if (customerData.length > 0) {
