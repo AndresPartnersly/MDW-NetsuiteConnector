@@ -590,6 +590,32 @@ app.get('/products', validateToken, async (req, res) => {
     }
 });
 
+app.get('/product_config', async (req, res) => {
+
+    let serviceResponse = { error: true, message: '' };
+
+    try {
+
+        let fileData = await leerArchivoYParsearJSON(filePath);
+        let fileString = JSON.stringify(fileData);
+        console.log(`601. File String: ${fileString}`);
+
+        if (!isEmpty(fileData)) {
+
+            serviceResponse.message = `Solicitud realizada con exito.`;
+            serviceResponse.body = fileData;
+            console.log(`607. ${serviceResponse.message}`);
+            res.status(200).json(serviceResponse);
+
+        }
+    }
+    catch (e) {
+        console.error(`Error: ${e.message}`);
+        res.status(500).json()
+    }
+
+})
+
 let isEmpty = (value) => {
 
     if (value === ``)
@@ -622,16 +648,23 @@ let leerArchivoYParsearJSON = (filePath) => {
     return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
             if (err) {
-                console.error(`Error al parsear archivo Database.txt | Details: ${JSON.stringify(err)}`);
-                reject(null);
+                console.error(`Error al procesar archivo Database.txt | Details: ${JSON.stringify(err)}`);
+                reject('');
             }
 
             try {
-                const contenidoJSON = JSON.parse(data);
-                resolve(contenidoJSON);
+
+                if (!isEmpty(data)) {
+                    const contenidoJSON = JSON.parse(data);
+                    resolve(contenidoJSON);
+                }
+                else {
+                    console.error(`No se pudo parsear contenido de archivo.`);
+                    reject('')
+                }
             } catch (err) {
                 console.error(`Error al parsear archivo Database.txt | Details: ${err.message}`);
-                reject(null);
+                reject('');
             }
         });
     });
