@@ -621,7 +621,6 @@ app.get('/product_config', async (req, res) => {
         serviceResponse.message = e.message;
         res.status(500).json(serviceResponse)
     }
-
 })
 
 let isEmpty = (value) => {
