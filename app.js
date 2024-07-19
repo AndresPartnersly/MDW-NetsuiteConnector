@@ -597,21 +597,29 @@ app.get('/product_config', async (req, res) => {
     try {
 
         let fileData = await leerArchivoYParsearJSON(filePath);
-        let fileString = JSON.stringify(fileData);
-        console.log(`601. File String: ${fileString}`);
 
         if (!isEmpty(fileData)) {
 
+            let fileString = JSON.stringify(fileData);
+            console.log(`601. File String: ${fileString}`);
+
             serviceResponse.message = `Solicitud realizada con exito.`;
+            serviceResponse.quantity = fileData.length;
             serviceResponse.body = fileData;
             console.log(`607. ${serviceResponse.message}`);
             res.status(200).json(serviceResponse);
 
         }
+        else {
+            serviceResponse.message = `No se encontro informacion en archivo de datos de configuracion`;
+            console.error(`Error: ${serviceResponse.message}`);
+            res.status(500).json(serviceResponse)
+        }
     }
     catch (e) {
         console.error(`Error: ${e.message}`);
-        res.status(500).json()
+        serviceResponse.message = e.message;
+        res.status(500).json(serviceResponse)
     }
 
 })
