@@ -652,26 +652,32 @@ let arraySplit = (array, chunkSize) => {
 }
 
 let leerArchivoYParsearJSON = (filePath) => {
+
+    let message = ``;
+
     return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
+            console.log(`657. Data: ${JSON.stringify(data)}`);
             if (err) {
-                console.error(`Error al procesar archivo Database.txt | Details: ${JSON.stringify(err)}`);
-                reject('');
+                message = `Error al procesar archivo Database.txt | Details: ${JSON.stringify(err)}`
+                console.error(message);
+                reject(message);
             }
 
             try {
-
                 if (!isEmpty(data)) {
                     const contenidoJSON = JSON.parse(data);
                     resolve(contenidoJSON);
                 }
                 else {
-                    console.error(`No se pudo parsear contenido de archivo.`);
-                    reject('')
+                    message = `No se pudo parsear contenido de archivo.`;
+                    console.error(message);
+                    reject(message)
                 }
             } catch (err) {
-                console.error(`Error al parsear archivo Database.txt | Details: ${err.message}`);
-                reject('');
+                message = `Error al parsear archivo Database.txt | Details: ${err.message}`
+                console.error(message);
+                reject(message);
             }
         });
     });
