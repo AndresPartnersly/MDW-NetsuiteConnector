@@ -654,10 +654,11 @@ let arraySplit = (array, chunkSize) => {
 let leerArchivoYParsearJSON = (filePath) => {
 
     let message = ``;
+    console.log(`657. File Path: ${filePath}`);
 
     return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
-            console.log(`657. Data: ${JSON.stringify(data)}`);
+            console.log(`661. Data: ${JSON.stringify(data)}`);
             if (err) {
                 message = `Error al procesar archivo Database.txt | Details: ${JSON.stringify(err)}`
                 console.error(message);
