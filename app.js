@@ -603,6 +603,7 @@ app.get('/product_config', async (req, res) => {
             let fileString = JSON.stringify(fileData);
             console.log(`601. File String: ${fileString}`);
 
+            serviceResponse.error = false;
             serviceResponse.message = `Solicitud realizada con exito.`;
             serviceResponse.quantity = fileData.length;
             serviceResponse.body = fileData;
