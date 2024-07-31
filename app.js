@@ -449,9 +449,9 @@ app.get('/products', validateToken, async (req, res) => {
                                                                 let obj = {
                                                                     id: itemsFilter[i].internalid,
                                                                     sku: itemsFilter[i].itemid,
-                                                                    display_name: itemsFilter[i].storedisplayname2,
+                                                                    nombre: itemsFilter[i].storedisplayname2,
                                                                     marca: itemsFilter[i].custitem_marca,
-                                                                    upc_code: itemsFilter[i].upccode
+                                                                    codigo_upc: itemsFilter[i].upccode
                                                                 };
 
                                                                 if (itemsFilter[i].hasOwnProperty('mpn')) {
@@ -459,7 +459,7 @@ app.get('/products', validateToken, async (req, res) => {
                                                                 }
 
                                                                 if (itemsFilter[i].hasOwnProperty('vendorname')) {
-                                                                    obj.vendor_name = itemsFilter[i].vendorname;
+                                                                    obj.nombre_proveedor = itemsFilter[i].vendorname;
                                                                 }
 
                                                                 let standardPriceValue = 0;
@@ -476,17 +476,17 @@ app.get('/products', validateToken, async (req, res) => {
                                                                     }
 
                                                                     if (specialPriceValue != null && specialPriceValue != 0 && specialPriceValue < standardPriceValue) {
-                                                                        obj.price = specialPriceValue;
+                                                                        obj.precio = specialPriceValue;
                                                                     }
                                                                     else {
-                                                                        obj.price = standardPriceValue;
+                                                                        obj.precio = standardPriceValue;
                                                                     }
                                                                 }
                                                                 else {
-                                                                    obj.price = null;
+                                                                    obj.precio = null;
                                                                 }
 
-                                                                obj.in_stock = false;
+                                                                obj.disponible = false;
 
                                                                 if (itemsFilter[i].hasOwnProperty('quantityavailable_detail')) {
 
@@ -516,11 +516,11 @@ app.get('/products', validateToken, async (req, res) => {
                                                                                             if (calculo > 0) {
                                                                                                 if (!isEmpty(locationStockMax)) {
                                                                                                     if (calculo < locationStockMax) {
-                                                                                                        obj.in_stock = true;
+                                                                                                        obj.disponible = true;
                                                                                                     }
                                                                                                 }
                                                                                                 else {
-                                                                                                    obj.in_stock = true;
+                                                                                                    obj.disponible = true;
                                                                                                 }
                                                                                             }
                                                                                         }
@@ -537,19 +537,19 @@ app.get('/products', validateToken, async (req, res) => {
                                                                     // Valores fijos actualmente
                                                                     if (itemsFilter[i].taxschedule == "IVA REDUCIDO") {
                                                                         taxResult = '10.5%';
-                                                                        obj.tax = taxResult;
+                                                                        obj.iva = taxResult;
                                                                     }
                                                                     else if (itemsFilter[i].taxschedule == "IVA GENERAL") {
                                                                         taxResult = '21%';
-                                                                        obj.tax = taxResult;
+                                                                        obj.iva = taxResult;
                                                                     }
                                                                     else if (itemsFilter[i].taxschedule == "IVA ESPECIAL") {
                                                                         taxResult = '27%';
-                                                                        obj.tax = taxResult;
+                                                                        obj.iva = taxResult;
                                                                     }
                                                                     else if (itemsFilter[i].taxschedule == "EXENTO") {
                                                                         taxResult = '0%';
-                                                                        obj.tax = taxResult;
+                                                                        obj.iva = taxResult;
                                                                     }
                                                                 }
 
