@@ -374,153 +374,154 @@ app.get('/products', validateToken, async (req, res) => {
 
                                     if (!isEmpty(standardPrice)) {
 
-                                        let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset={offset_value}&currency=USD`;
-                                        let firstBaseUrl = baseUrl.replace('{offset_value}', `0`);
-                                        console.log(`377. BaseUrl: ${baseUrl} | First Base Url: ${firstBaseUrl}`);
+                                        let configStockMax = 100;
+                                        //let configStockMax = customerConfiguration[0].stockMax;
 
-                                        let cantidadIteraciones = 1;
-                                        const nsItemsData = await axios.get(firstBaseUrl);
-                                        //console.log(`Ns Response: ${JSON.stringify(nsResponse.data)}`);
+                                        if (!isNaN(configStockMax)) {
 
-                                        if (!isEmpty(nsItemsData)) {
+                                            let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset={offset_value}&currency=USD`;
+                                            let firstBaseUrl = baseUrl.replace('{offset_value}', `0`);
+                                            console.log(`377. BaseUrl: ${baseUrl} | First Base Url: ${firstBaseUrl}`);
 
-                                            let itemsResultArray = nsItemsData.data.items;
-                                            let itemsProcesarQty = nsItemsData.data.total;
-                                            console.log(`387. Cantidad de articulos obtenidos de NetSuite: ${itemsProcesarQty}`);
+                                            let cantidadIteraciones = 1;
+                                            const nsItemsData = await axios.get(firstBaseUrl);
+                                            //console.log(`Ns Response: ${JSON.stringify(nsResponse.data)}`);
 
-                                            if (itemsProcesarQty > 100) {
-                                                //itemsProcesar = arraySplit(itemsResultArray, 100);
-                                                //console.log(`369. Items a procesar: ${JSON.stringify(itemsProcesar)}`);
-                                                let itemsProcesar = Math.floor(itemsProcesarQty / 100);
-                                                cantidadIteraciones = itemsProcesar;
-                                            }
+                                            if (!isEmpty(nsItemsData)) {
 
-                                            console.log(`396. Cantidad de iteraciones: ${cantidadIteraciones}`);
+                                                let itemsResultArray = nsItemsData.data.items;
+                                                let itemsProcesarQty = nsItemsData.data.total;
+                                                console.log(`387. Cantidad de articulos obtenidos de NetSuite: ${itemsProcesarQty}`);
 
-                                            for (let i = 1; i <= cantidadIteraciones; i++) {
+                                                if (itemsProcesarQty > 100) {
+                                                    //itemsProcesar = arraySplit(itemsResultArray, 100);
+                                                    //console.log(`369. Items a procesar: ${JSON.stringify(itemsProcesar)}`);
+                                                    let itemsProcesar = Math.floor(itemsProcesarQty / 100);
+                                                    cantidadIteraciones = itemsProcesar;
+                                                }
 
-                                                let calculo = i * 100;
-                                                let nsRequestUrl = baseUrl.replace('{offset_value}', `${calculo}`);
-                                                console.log(`401. Line: ${i} | New Request Url: ${nsRequestUrl}`);
-                                                const nsResponse = await axios.get(nsRequestUrl);
+                                                console.log(`396. Cantidad de iteraciones: ${cantidadIteraciones}`);
 
-                                                let nsResponseData = nsResponse.data;
-                                                let nsResposeCode = nsResponse.status;
-                                                console.log(`406. Line ${i} | NetSuite Response: ${nsResposeCode}`);
-                                                //console.log(`272. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`);
+                                                for (let i = 1; i <= cantidadIteraciones; i++) {
 
-                                                if (nsResposeCode == 200) {
+                                                    let calculo = i * 100;
+                                                    let nsRequestUrl = baseUrl.replace('{offset_value}', `${calculo}`);
+                                                    console.log(`401. Line: ${i} | New Request Url: ${nsRequestUrl}`);
+                                                    const nsResponse = await axios.get(nsRequestUrl);
 
-                                                    let nsResponseItems = nsResponseData.items;
-                                                    console.log(`412. Line ${i} | NetSuite Response Items Quantity: ${nsResponseItems.length}`);
+                                                    let nsResponseData = nsResponse.data;
+                                                    let nsResposeCode = nsResponse.status;
+                                                    console.log(`406. Line ${i} | NetSuite Response: ${nsResposeCode}`);
+                                                    //console.log(`272. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`);
 
-                                                    if (nsResponseItems.length > 0) {
-                                                        itemsResultArray = itemsResultArray.concat(nsResponseItems);
+                                                    if (nsResposeCode == 200) {
+
+                                                        let nsResponseItems = nsResponseData.items;
+                                                        console.log(`412. Line ${i} | NetSuite Response Items Quantity: ${nsResponseItems.length}`);
+
+                                                        if (nsResponseItems.length > 0) {
+                                                            itemsResultArray = itemsResultArray.concat(nsResponseItems);
+                                                        }
+                                                    }
+                                                    else {
+                                                        serviceResponse.message = `Error: el servicio de SuiteCommerce no se ejecuto correctamente. Code: ${nsResposeCode}.`
+                                                        res.status(500).json(serviceResponse);
                                                     }
                                                 }
-                                                else {
-                                                    serviceResponse.message = `Error: el servicio de SuiteCommerce no se ejecuto correctamente. Code: ${nsResposeCode}.`
-                                                    res.status(500).json(serviceResponse);
-                                                }
-                                            }
 
-                                            console.log(`425. Final Items Array Quantity: ${itemsResultArray.length}`);
-                                            //console.log(`426. Final Items Array: ${JSON.stringify(itemsResultArray)}`);
+                                                console.log(`425. Final Items Array Quantity: ${itemsResultArray.length}`);
+                                                //console.log(`426. Final Items Array: ${JSON.stringify(itemsResultArray)}`);
 
-                                            if (itemsResultArray.length > 0) {
+                                                if (itemsResultArray.length > 0) {
 
-                                                let itemsFilter = itemsResultArray.filter(element => (element.isinstock == true));
-                                                console.log(`429. Items in Stock: ${itemsFilter.length}`);
+                                                    let itemsFilter = itemsResultArray.filter(element => (element.isinstock == true));
+                                                    console.log(`429. Items in Stock: ${itemsFilter.length}`);
 
-                                                let outputArray = [];
+                                                    let outputArray = [];
 
-                                                if (itemsFilter.length > 0) {
-                                                    for (let i = 0; i < itemsFilter.length; i++) {
+                                                    if (itemsFilter.length > 0) {
+                                                        for (let i = 0; i < itemsFilter.length; i++) {
 
-                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_mgt_web_sites')) {
+                                                            if (itemsFilter[i].hasOwnProperty('custitem_ptly_mgt_web_sites')) {
 
-                                                            let itemWebsites = itemsFilter[i].custitem_ptly_mgt_web_sites.split(',');
-                                                            //console.log(`381. ItemWebsites: ${JSON.stringify(itemWebsites)}`)
-                                                            let webSiteFilter = itemWebsites.filter(element => limpiarString(element) == WEBSITE_ID);
-                                                            console.log(`445. Items Disponibles en Web: ${webSiteFilter.length}`);
+                                                                let itemWebsites = itemsFilter[i].custitem_ptly_mgt_web_sites.split(',');
+                                                                //console.log(`381. ItemWebsites: ${JSON.stringify(itemWebsites)}`)
+                                                                let webSiteFilter = itemWebsites.filter(element => limpiarString(element) == WEBSITE_ID);
+                                                                //console.log(`445. Items Disponibles en Web: ${webSiteFilter.length}`);
 
-                                                            if (webSiteFilter.length > 0) {
+                                                                if (webSiteFilter.length > 0) {
 
-                                                                let obj = {
-                                                                    id: itemsFilter[i].internalid,
-                                                                    sku: itemsFilter[i].itemid,
-                                                                    nombre: itemsFilter[i].storedisplayname2,
-                                                                    marca: itemsFilter[i].custitem_marca,
-                                                                    codigo_upc: itemsFilter[i].upccode
-                                                                };
+                                                                    let obj = {
+                                                                        id: itemsFilter[i].internalid,
+                                                                        sku: itemsFilter[i].itemid,
+                                                                        nombre: itemsFilter[i].storedisplayname2,
+                                                                        marca: itemsFilter[i].custitem_marca,
+                                                                        codigo_upc: itemsFilter[i].upccode
+                                                                    };
 
-                                                                if (itemsFilter[i].hasOwnProperty('mpn')) {
-                                                                    obj.modelo = itemsFilter[i].mpn;
-                                                                }
+                                                                    if (itemsFilter[i].hasOwnProperty('mpn')) {
+                                                                        obj.modelo = itemsFilter[i].mpn;
+                                                                    }
 
-                                                                if (itemsFilter[i].hasOwnProperty('vendorname')) {
-                                                                    obj.nombre_proveedor = itemsFilter[i].vendorname;
-                                                                }
+                                                                    if (itemsFilter[i].hasOwnProperty('vendorname')) {
+                                                                        obj.nombre_proveedor = itemsFilter[i].vendorname;
+                                                                    }
 
-                                                                let standardPriceValue = 0;
-                                                                let specialPriceValue = null;
+                                                                    let standardPriceValue = 0;
+                                                                    let specialPriceValue = null;
 
-                                                                if (itemsFilter[i].hasOwnProperty(standardPrice)) {
+                                                                    if (itemsFilter[i].hasOwnProperty(standardPrice)) {
 
-                                                                    standardPriceValue = itemsFilter[i][standardPrice];
+                                                                        standardPriceValue = itemsFilter[i][standardPrice];
 
-                                                                    if (!isEmpty(specialPrice)) {
-                                                                        if (itemsFilter[i].hasOwnProperty(specialPrice)) {
-                                                                            specialPriceValue = itemsFilter[i][specialPrice];
+                                                                        if (!isEmpty(specialPrice)) {
+                                                                            if (itemsFilter[i].hasOwnProperty(specialPrice)) {
+                                                                                specialPriceValue = itemsFilter[i][specialPrice];
+                                                                            }
+                                                                        }
+
+                                                                        if (specialPriceValue != null && specialPriceValue != 0 && specialPriceValue < standardPriceValue) {
+                                                                            obj.precio = specialPriceValue;
+                                                                        }
+                                                                        else {
+                                                                            obj.precio = standardPriceValue;
                                                                         }
                                                                     }
-
-                                                                    if (specialPriceValue != null && specialPriceValue != 0 && specialPriceValue < standardPriceValue) {
-                                                                        obj.precio = specialPriceValue;
-                                                                    }
                                                                     else {
-                                                                        obj.precio = standardPriceValue;
+                                                                        obj.precio = null;
                                                                     }
-                                                                }
-                                                                else {
-                                                                    obj.precio = null;
-                                                                }
 
-                                                                obj.disponible = false;
+                                                                    obj.disponible = false;
+                                                                    obj.cantidad_disponible = 0;
 
-                                                                if (itemsFilter[i].hasOwnProperty('quantityavailable_detail')) {
+                                                                    let currentQtyAvailableTotal = 0;
 
-                                                                    let quantityAvailable = itemsFilter[i].quantityavailable_detail;
+                                                                    if (itemsFilter[i].hasOwnProperty('quantityavailable_detail')) {
 
-                                                                    if (quantityAvailable.hasOwnProperty('quantityavailable') && quantityAvailable.hasOwnProperty('locations')) {
-                                                                        if (quantityAvailable.quantityavailable > 0 && quantityAvailable.locations.length > 0) {
+                                                                        let quantityAvailable = itemsFilter[i].quantityavailable_detail;
 
-                                                                            for (let b = 0; b < locationsConfig.length; b++) {
+                                                                        if (quantityAvailable.hasOwnProperty('quantityavailable') && quantityAvailable.hasOwnProperty('locations')) {
+                                                                            if (quantityAvailable.quantityavailable > 0 && quantityAvailable.locations.length > 0) {
 
-                                                                                let locationId = locationsConfig[b].nsLocationId;
-                                                                                let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
-                                                                                let locationStockMax = locationsConfig[b].stockMax;
-                                                                                //console.log(`495. Line: ${i}_${b} | Location: ${locationId}`);
+                                                                                for (let b = 0; b < locationsConfig.length; b++) {
 
-                                                                                if (!isEmpty(locationId) && !isEmpty(locationStockPercent)) {
+                                                                                    let locationId = locationsConfig[b].nsLocationId;
+                                                                                    let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
+                                                                                    //console.log(`495. Line: ${i}_${b} | Location: ${locationId}`);
 
-                                                                                    for (let c = 0; c < quantityAvailable.locations.length; c++) {
+                                                                                    if (!isEmpty(locationId) && !isEmpty(locationStockPercent)) {
 
-                                                                                        let itemLocFilter = quantityAvailable.locations.filter(element => element.internalid == locationId);
+                                                                                        for (let c = 0; c < quantityAvailable.locations.length; c++) {
 
-                                                                                        if (itemLocFilter.length > 0) {
+                                                                                            let itemLocFilter = quantityAvailable.locations.filter(element => element.internalid == locationId);
 
-                                                                                            let itemLocQty = quantityAvailable.locations[c].quantityavailable;
-                                                                                            let calculo = itemLocQty * locationStockPercent;
+                                                                                            if (itemLocFilter.length > 0) {
 
-                                                                                            if (calculo > 0) {
-                                                                                                if (!isEmpty(locationStockMax)) {
-                                                                                                    if (calculo < locationStockMax) {
-                                                                                                        obj.disponible = true;
-                                                                                                    }
-                                                                                                }
-                                                                                                else {
-                                                                                                    obj.disponible = true;
+                                                                                                let itemLocQty = quantityAvailable.locations[c].quantityavailable;
+                                                                                                let calculo = Math.ceil(itemLocQty * locationStockPercent);
+
+                                                                                                if (calculo > 0) {
+                                                                                                    currentQtyAvailableTotal += calculo;
                                                                                                 }
                                                                                             }
                                                                                         }
@@ -529,94 +530,106 @@ app.get('/products', validateToken, async (req, res) => {
                                                                             }
                                                                         }
                                                                     }
-                                                                }
 
-                                                                if (itemsFilter[i].hasOwnProperty('taxschedule')) {
+                                                                    if (currentQtyAvailableTotal > 0) {
 
-                                                                    let taxResult = null;
-                                                                    // Valores fijos actualmente
-                                                                    if (itemsFilter[i].taxschedule == "IVA REDUCIDO") {
-                                                                        taxResult = '10.5%';
-                                                                        obj.iva = taxResult;
-                                                                    }
-                                                                    else if (itemsFilter[i].taxschedule == "IVA GENERAL") {
-                                                                        taxResult = '21%';
-                                                                        obj.iva = taxResult;
-                                                                    }
-                                                                    else if (itemsFilter[i].taxschedule == "IVA ESPECIAL") {
-                                                                        taxResult = '27%';
-                                                                        obj.iva = taxResult;
-                                                                    }
-                                                                    else if (itemsFilter[i].taxschedule == "EXENTO") {
-                                                                        taxResult = '0%';
-                                                                        obj.iva = taxResult;
-                                                                    }
-                                                                }
+                                                                        obj.disponible = true;
 
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_3k_porc_imp_int')) {
-                                                                    obj.imp_interno = itemsFilter[i].custitem_3k_porc_imp_int;
-                                                                }
-                                                                else {
-                                                                    obj.imp_interno = `0%`
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_ancho_cm')) {
-                                                                    obj.ancho_cm = itemsFilter[i].custitem_ptly_ancho_cm;
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_largo_cm')) {
-                                                                    obj.largo_cm = itemsFilter[i].custitem_ptly_largo_cm;
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_alto_cm')) {
-                                                                    obj.alto_cm = itemsFilter[i].custitem_ptly_alto_cm;
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_peso_kg')) {
-                                                                    obj.peso_kg = itemsFilter[i].custitem_ptly_peso_kg;
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('itemimages_detail')) {
-
-                                                                    let imagenes = itemsFilter[i].itemimages_detail;
-
-                                                                    if (imagenes.hasOwnProperty('urls')) {
-                                                                        if (imagenes.urls.length > 0) {
-                                                                            obj.imagenes = imagenes.urls;
+                                                                        if(currentQtyAvailableTotal < configStockMax) {
+                                                                            obj.cantidad_disponible = currentQtyAvailableTotal;
+                                                                        }
+                                                                        else {
+                                                                            obj.cantidad_disponible = configStockMax;
                                                                         }
                                                                     }
+
+                                                                    if (itemsFilter[i].hasOwnProperty('taxschedule')) {
+
+                                                                        let taxResult = null;
+                                                                        // Valores fijos actualmente
+                                                                        if (itemsFilter[i].taxschedule == "IVA REDUCIDO") {
+                                                                            taxResult = '10.5%';
+                                                                            obj.iva = taxResult;
+                                                                        }
+                                                                        else if (itemsFilter[i].taxschedule == "IVA GENERAL") {
+                                                                            taxResult = '21%';
+                                                                            obj.iva = taxResult;
+                                                                        }
+                                                                        else if (itemsFilter[i].taxschedule == "IVA ESPECIAL") {
+                                                                            taxResult = '27%';
+                                                                            obj.iva = taxResult;
+                                                                        }
+                                                                        else if (itemsFilter[i].taxschedule == "EXENTO") {
+                                                                            taxResult = '0%';
+                                                                            obj.iva = taxResult;
+                                                                        }
+                                                                    }
+
+                                                                    if (itemsFilter[i].hasOwnProperty('custitem_3k_porc_imp_int')) {
+                                                                        obj.imp_interno = itemsFilter[i].custitem_3k_porc_imp_int;
+                                                                    }
+                                                                    else {
+                                                                        obj.imp_interno = `0%`
+                                                                    }
+
+                                                                    if (itemsFilter[i].hasOwnProperty('custitem_ptly_ancho_cm')) {
+                                                                        obj.ancho_cm = itemsFilter[i].custitem_ptly_ancho_cm;
+                                                                    }
+
+                                                                    if (itemsFilter[i].hasOwnProperty('custitem_ptly_largo_cm')) {
+                                                                        obj.largo_cm = itemsFilter[i].custitem_ptly_largo_cm;
+                                                                    }
+
+                                                                    if (itemsFilter[i].hasOwnProperty('custitem_ptly_alto_cm')) {
+                                                                        obj.alto_cm = itemsFilter[i].custitem_ptly_alto_cm;
+                                                                    }
+
+                                                                    if (itemsFilter[i].hasOwnProperty('custitem_ptly_peso_kg')) {
+                                                                        obj.peso_kg = itemsFilter[i].custitem_ptly_peso_kg;
+                                                                    }
+
+                                                                    if (itemsFilter[i].hasOwnProperty('itemimages_detail')) {
+
+                                                                        let imagenes = itemsFilter[i].itemimages_detail;
+
+                                                                        if (imagenes.hasOwnProperty('urls')) {
+                                                                            if (imagenes.urls.length > 0) {
+                                                                                obj.imagenes = imagenes.urls;
+                                                                            }
+                                                                        }
+                                                                    }
+
+                                                                    outputArray.push(obj);
                                                                 }
+                                                                else {
 
-                                                                outputArray.push(obj);
-                                                            }
-                                                            else {
-
+                                                                }
                                                             }
                                                         }
-                                                    }
 
-                                                    console.log(`410. Servicio correctamente ejecutado | Resultado: ${outputArray.length} articulos`);
-                                                    serviceResponse.error = false;
-                                                    serviceResponse.message = `Solicitud realizada con exito`;
-                                                    serviceResponse.result = outputArray.length;
-                                                    serviceResponse.items = outputArray;
-                                                    res.status(200).json(serviceResponse);
+                                                        console.log(`410. Servicio correctamente ejecutado | Resultado: ${outputArray.length} articulos`);
+                                                        serviceResponse.error = false;
+                                                        serviceResponse.message = `Solicitud realizada con exito`;
+                                                        serviceResponse.result = outputArray.length;
+                                                        serviceResponse.items = outputArray;
+                                                        res.status(200).json(serviceResponse);
+                                                    }
+                                                    else {
+                                                        serviceResponse.result = 0;
+                                                        serviceResponse.items = [];
+                                                        serviceResponse.message = `No se encontraron articulos en stock.`
+                                                        res.status(204).json(serviceResponse);
+                                                    }
                                                 }
                                                 else {
-                                                    serviceResponse.result = 0;
-                                                    serviceResponse.items = [];
-                                                    serviceResponse.message = `No se encontraron articulos en stock.`
-                                                    res.status(204).json(serviceResponse);
+                                                    serviceResponse.message = `Ocurrio un error inesperado al segmentar informacion de articulos del sistema.`
+                                                    res.status(500).json(serviceResponse);
                                                 }
                                             }
                                             else {
-                                                serviceResponse.message = `Ocurrio un error inesperado al segmentar informacion de articulos del sistema.`
+                                                serviceResponse.message = `Error al obtener informacion de articulos del sistema.`
                                                 res.status(500).json(serviceResponse);
                                             }
-                                        }
-                                        else {
-                                            serviceResponse.message = `Error al obtener informacion de articulos del sistema.`
-                                            res.status(500).json(serviceResponse);
                                         }
                                     }
                                     else {
@@ -674,7 +687,7 @@ app.get('/products', validateToken, async (req, res) => {
         }
 
         serviceResponse.message = errorMsg;
-        res.status(401).json(serviceResponse);
+        res.status(500).json(serviceResponse);
     }
 });
 
