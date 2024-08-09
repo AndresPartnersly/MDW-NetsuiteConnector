@@ -374,10 +374,12 @@ app.get('/products', validateToken, async (req, res) => {
 
                                     if (!isEmpty(standardPrice)) {
 
-                                        let configStockMax = 100;
-                                        //let configStockMax = customerConfiguration[0].stockMax;
+                                        let configStockMaxRaw = customerConfiguration[0].stockMax;
+                                        console.log(`375. Stock Max Per Item: ${configStockMaxRaw}`);
 
-                                        if (!isNaN(configStockMax)) {
+                                        if (!isNaN(configStockMaxRaw)) {
+
+                                            let configStockMax = parseFloat(configStockMaxRaw);
 
                                             let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset={offset_value}&currency=USD`;
                                             let firstBaseUrl = baseUrl.replace('{offset_value}', `0`);
@@ -518,10 +520,13 @@ app.get('/products', validateToken, async (req, res) => {
                                                                                             if (itemLocFilter.length > 0) {
 
                                                                                                 let itemLocQty = quantityAvailable.locations[c].quantityavailable;
-                                                                                                let calculo = Math.ceil(itemLocQty * locationStockPercent);
+                                                                                                let calculo = itemLocQty * locationStockPercent;
 
-                                                                                                if (calculo > 0) {
-                                                                                                    currentQtyAvailableTotal += calculo;
+                                                                                                if (calculo > 0 && calculo < 1) {
+                                                                                                    currentQtyAvailableTotal++;
+                                                                                                }
+                                                                                                else if (calculo > 1) {
+                                                                                                    currentQtyAvailableTotal += Math.round(calculo);
                                                                                                 }
                                                                                             }
                                                                                         }
@@ -630,6 +635,10 @@ app.get('/products', validateToken, async (req, res) => {
                                                 serviceResponse.message = `Error al obtener informacion de articulos del sistema.`
                                                 res.status(500).json(serviceResponse);
                                             }
+                                        }
+                                        else {
+                                            serviceResponse.message = `Error al obtener informacion de configuracion de stock para el cliente.`
+                                            res.status(500).json(serviceResponse);
                                         }
                                     }
                                     else {
