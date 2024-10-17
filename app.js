@@ -465,10 +465,10 @@ app.get('/products', validateToken, async (req, res) => {
                                                                 };
 
                                                                 if (itemsFilter[i].hasOwnProperty('custitem_ptly_class_id')) {
-                                                                    obj.id_class = itemsFilter[i].custitem_ptly_class_id;
+                                                                    obj.id_categoria = itemsFilter[i].custitem_ptly_class_id;
                                                                 }
                                                                 else {
-                                                                    obj.id_class = '';
+                                                                    obj.id_categoria = '';
                                                                 }
                                                                 
                                                                 if (itemsFilter[i].hasOwnProperty('custitem_ptly_rubro_id')) {
