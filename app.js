@@ -38,7 +38,7 @@ let http = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 60000 }
 
 // Inicia el servidor en el puerto especificado y muestra un mensaje en la consola.
 app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
+    console.log(`41. Servidor corriendo en http://localhost:${port}`);
 });
 
 function processRequest(data, arrayId) {
@@ -95,7 +95,7 @@ function validateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
-    console.log(`150. Access Token: ${JSON.stringify(token)}`);
+    console.log(`98. Access Token: ${JSON.stringify(token)}`);
 
 
     if (!token) {
@@ -105,7 +105,7 @@ function validateToken(req, res, next) {
     else {
         jwt.verify(token, JWT_SECRET, (err, user) => {
             if (err) {
-                console.log(`156. Error: ${JSON.stringify(err)}`);
+                console.log(`108. Error: ${JSON.stringify(err)}`);
                 serviceResponse.message = `Acceso denegado, token expirado o incorrecto`;
                 res.status(401).json(serviceResponse);
             }
@@ -124,7 +124,7 @@ app.post('/netsuite-trigger', async (req, res) => {
 
     http = rateLimit(axios.create(), { maxRequests: data['maxRequests'], perMilliseconds: data['perMilliseconds'] });
 
-    console.log(`retries: ${data['retries']} - maxRequests: ${data['maxRequests']} - perMilliseconds: ${data['perMilliseconds']}`)
+    console.log(`127. retries: ${data['retries']} - maxRequests: ${data['maxRequests']} - perMilliseconds: ${data['perMilliseconds']}`)
     // Configuración de reintentos automáticos para el cliente Axios para manejar fallos temporales en las peticiones.
     axiosRetry(http, {
         retries: data['retries']
@@ -145,7 +145,7 @@ app.post('/netsuite-trigger', async (req, res) => {
 app.post('/login', async (req, res) => {
 
     const { username, password } = req.body;
-    console.log(`110. Request Body: ${JSON.stringify(req.body)}`);
+    console.log(`148. Request Body: ${JSON.stringify(req.body)}`);
     const respuesta = await axios.get(USERS_DATA);
     console.log(`User data query status => ${respuesta[`status`]}`);
     if (respuesta[`status`] == 200) {
@@ -156,7 +156,7 @@ app.post('/login', async (req, res) => {
             if (filter.length > 0) {
                 const user = { name: username, password: password };
                 const accessToken = jwt.sign(user, JWT_SECRET, { expiresIn: `5m` });
-                //console.log(`accessToken: ${accessToken}`)
+                //console.log(`159. accessToken: ${accessToken}`)
                 res.json({ error: false, message: `Usuario autenticado`, token: accessToken });
             }
             else {
@@ -173,7 +173,7 @@ app.post('/login', async (req, res) => {
     {
         const user = { name: username };
         const accessToken = jwt.sign(user, JWT_SECRET, { expiresIn: `5m` });
-        //console.log(`accessToken: ${accessToken}`)
+        //console.log(`176. accessToken: ${accessToken}`)
         res.json({ error: false, message: `Usuario autenticado`, token: accessToken });
     } else {
         res.status(401).json({ error: true, message: `Usuario & contraseña incorrecta`, token: null });
@@ -187,12 +187,12 @@ app.post('/update_config_file', async (req, res) => {
     try {
 
         const reqBody = req.body;
-        console.log(`180. Request Body Length: ${reqBody.length}`);
+        console.log(`190. Request Body Length: ${reqBody.length}`);
 
         if (reqBody.hasOwnProperty('data')) {
 
             let newContent = reqBody.data;
-            console.log(`187. Configuration Array Length: ${newContent.length}`);
+            console.log(`195. Configuration Array Length: ${newContent.length}`);
 
             if (Array.isArray(newContent) && newContent.length > 0) {
 
@@ -201,7 +201,7 @@ app.post('/update_config_file', async (req, res) => {
                 for (let i = 0; i < newContent.length; i++) {
 
                     let object = newContent[i];
-                    console.log(`196. ${typeof newContent[i].user}`);
+                    console.log(`204. ${typeof newContent[i].user}`);
                     if (object.hasOwnProperty('user')) {
                         if (typeof newContent[i].user != 'string' || newContent[i].user == '') {
                             continueValidator = false;
@@ -230,7 +230,7 @@ app.post('/update_config_file', async (req, res) => {
 
                 if (continueValidator == true) {
 
-                    console.log(`New Content: ${JSON.stringify(newContent)}`);
+                    console.log(`233. New Content: ${JSON.stringify(newContent)}`);
                     let textContent = JSON.stringify(newContent);
 
                     if (isEmpty(textContent)) {
@@ -249,7 +249,7 @@ app.post('/update_config_file', async (req, res) => {
                             else {
                                 serviceResponse.error = false;
                                 serviceResponse.message = 'Archivo actualizado exitosamente.';
-                                console.log(`198. Response code: 200 | ${serviceResponse.message}`);
+                                console.log(`252. Response code: 200 | ${serviceResponse.message}`);
                                 res.status(200).json(serviceResponse);
                             }
                         });
@@ -282,7 +282,7 @@ app.post('/update_config_file', async (req, res) => {
 //
 app.get('/protected', validateToken, (req, res) => {
 
-    console.log(`Headers: ${JSON.stringify(req.headers)}`);
+    console.log(`285. Headers: ${JSON.stringify(req.headers)}`);
 
     res.json({
         message: `This is a protected route`,
@@ -301,14 +301,14 @@ app.get('/products', validateToken, async (req, res) => {
 
     let serviceResponse = { error: true, message: `` };
     let requestHeaders = req.headers;
-    //console.log(`180. Request Data: ${req}`); No se puede logear objeto por dependencia circular
-    console.log(`304. Request Headers: ${JSON.stringify(requestHeaders)}`);
+    //console.log(`304. Request Data: ${req}`); No se puede logear objeto por dependencia circular
+    console.log(`305. Request Headers: ${JSON.stringify(requestHeaders)}`);
 
     try {
 
         let requestUser = req.user.name;
         let requestPassword = req.user.password;
-        console.log(`310. Request Credentials Index | User: ${JSON.stringify(requestUser)} | Password: ${JSON.stringify(requestPassword)}`);
+        console.log(`311. Request Credentials Index | User: ${JSON.stringify(requestUser)} | Password: ${JSON.stringify(requestPassword)}`);
 
         if (!isEmpty(requestUser) && !isEmpty(requestPassword)) {
 
@@ -316,37 +316,37 @@ app.get('/products', validateToken, async (req, res) => {
             let usersDataQuery = await axios.get(USERS_DATA); // Se obtiene informacion de base de datos de clientes
             let usersDataparsedResponse = usersDataQuery.data;
             let usersDataResponseCode = usersDataQuery.status;
-            console.log(`318. Users Data Query Response => ${usersDataResponseCode} | Data: ${JSON.stringify(usersDataparsedResponse)}`);
+            console.log(`319. Users Data Query Response => ${usersDataResponseCode} | Data: ${JSON.stringify(usersDataparsedResponse)}`);
 
             if (usersDataResponseCode == 200) {
 
                 let usersDataFilter = usersDataparsedResponse.filter(element => element.user == requestUser && element.password == requestPassword);
                 // Se compara usuario que realiza el request con base de datos de clientes
-                console.log(`324. User Filter: ${JSON.stringify(usersDataFilter)}`);
+                console.log(`325. User Filter: ${JSON.stringify(usersDataFilter)}`);
 
                 if (usersDataFilter.length > 0) {
 
-                    console.log(`328. Usuario autenticado correctamente.`);
+                    console.log(`329. Usuario autenticado correctamente.`);
                     let parsedResponse = await leerArchivoYParsearJSON(filePath);
-                    console.log(`330. Database File (${parsedResponse.length}): ${JSON.stringify(parsedResponse)}`);
+                    console.log(`331. Database File (${parsedResponse.length}): ${JSON.stringify(parsedResponse)}`);
 
                     if (!isEmpty(parsedResponse)) {
 
                         let customerData = parsedResponse.filter(element => (element[`user`] === userId));
-                        console.log(`335. customerData Result: ${JSON.stringify(customerData)}`);
+                        console.log(`336. customerData Result: ${JSON.stringify(customerData)}`);
                         if (customerData.length > 0) {
 
                             let customerId = customerData[0].user;
-                            console.log(`339. Autenticación satisfactoria | Usuario: ${customerId}.`);
+                            console.log(`340. Autenticación satisfactoria | Usuario: ${customerId}.`);
                             let customerConfiguration = customerData[0].configuration;
 
                             let locationsConfig = customerConfiguration[0].configLocationData; // Array
-                            console.log(`343. Locations Config: ${JSON.stringify(locationsConfig)}`);
+                            console.log(`344. Locations Config: ${JSON.stringify(locationsConfig)}`);
 
                             if (!isEmpty(locationsConfig)) {
 
                                 let priceLevelConfig = customerConfiguration[0].configPriceLevelData; // Array
-                                console.log(`348. Price Level Config: ${JSON.stringify(priceLevelConfig)}`);
+                                console.log(`349. Price Level Config: ${JSON.stringify(priceLevelConfig)}`);
 
                                 if (!isEmpty(priceLevelConfig)) {
 
@@ -358,7 +358,7 @@ app.get('/products', validateToken, async (req, res) => {
                                         let priceLevelType = priceLevelConfig[i].intPriceLevelId;
                                         let priceLevel = priceLevelConfig[i].priceLevelId;
 
-                                        console.log(`360. Line: ${i} | Price Level Type: ${priceLevelType} | Price Id: ${priceLevel}`);
+                                        console.log(`361. Line: ${i} | Price Level Type: ${priceLevelType} | Price Id: ${priceLevel}`);
 
                                         if (priceLevelType == 'price') {
                                             standardPrice = priceLevel;
@@ -376,7 +376,7 @@ app.get('/products', validateToken, async (req, res) => {
 
                                         let configStockMaxRaw = customerConfiguration[0].stockMax;
                                         let configStockMax = null;
-                                        console.log(`375. Stock Max Per Item: ${configStockMaxRaw}`);
+                                        console.log(`379. Stock Max Per Item: ${configStockMaxRaw}`);
 
                                         if (!isEmpty(configStockMaxRaw)) {
                                             configStockMax = parseFloat(configStockMaxRaw);
@@ -384,43 +384,43 @@ app.get('/products', validateToken, async (req, res) => {
 
                                         let baseUrl = `${BASE_URL}?fieldset=${FIELDSET}&limit=100&offset={offset_value}&currency=USD`;
                                         let firstBaseUrl = baseUrl.replace('{offset_value}', `0`);
-                                        console.log(`377. BaseUrl: ${baseUrl} | First Base Url: ${firstBaseUrl}`);
+                                        console.log(`387. BaseUrl: ${baseUrl} | First Base Url: ${firstBaseUrl}`);
 
                                         let cantidadIteraciones = 1;
                                         const nsItemsData = await axios.get(firstBaseUrl);
-                                        //console.log(`Ns Response: ${JSON.stringify(nsResponse.data)}`);
+                                        //console.log(`391. Ns Response: ${JSON.stringify(nsResponse.data)}`);
 
                                         if (!isEmpty(nsItemsData)) {
 
                                             let itemsResultArray = nsItemsData.data.items;
                                             let itemsProcesarQty = nsItemsData.data.total;
-                                            console.log(`387. Cantidad de articulos obtenidos de NetSuite: ${itemsProcesarQty}`);
+                                            console.log(`397. Cantidad de articulos obtenidos de NetSuite: ${itemsProcesarQty}`);
 
                                             if (itemsProcesarQty > 100) {
                                                 //itemsProcesar = arraySplit(itemsResultArray, 100);
-                                                //console.log(`369. Items a procesar: ${JSON.stringify(itemsProcesar)}`);
+                                                //console.log(`401. Items a procesar: ${JSON.stringify(itemsProcesar)}`);
                                                 let itemsProcesar = Math.floor(itemsProcesarQty / 100);
                                                 cantidadIteraciones = itemsProcesar;
                                             }
 
-                                            console.log(`396. Cantidad de iteraciones: ${cantidadIteraciones}`);
+                                            console.log(`406. Cantidad de iteraciones: ${cantidadIteraciones}`);
 
                                             for (let i = 1; i <= cantidadIteraciones; i++) {
 
                                                 let calculo = i * 100;
                                                 let nsRequestUrl = baseUrl.replace('{offset_value}', `${calculo}`);
-                                                console.log(`401. Line: ${i} | New Request Url: ${nsRequestUrl}`);
+                                                console.log(`412. Line: ${i} | New Request Url: ${nsRequestUrl}`);
                                                 const nsResponse = await axios.get(nsRequestUrl);
 
                                                 let nsResponseData = nsResponse.data;
                                                 let nsResposeCode = nsResponse.status;
-                                                console.log(`406. Line ${i} | NetSuite Response: ${nsResposeCode}`);
-                                                //console.log(`272. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`);
+                                                console.log(`417. Line ${i} | NetSuite Response: ${nsResposeCode}`);
+                                                //console.log(`418. NetSuite Response Data: ${JSON.stringify(nsResponseData)}`);
 
                                                 if (nsResposeCode == 200) {
 
                                                     let nsResponseItems = nsResponseData.items;
-                                                    console.log(`412. Line ${i} | NetSuite Response Items Quantity: ${nsResponseItems.length}`);
+                                                    console.log(`423. Line ${i} | NetSuite Response Items Quantity: ${nsResponseItems.length}`);
 
                                                     if (nsResponseItems.length > 0) {
                                                         itemsResultArray = itemsResultArray.concat(nsResponseItems);
@@ -432,13 +432,15 @@ app.get('/products', validateToken, async (req, res) => {
                                                 }
                                             }
 
-                                            console.log(`425. Final Items Array Quantity: ${itemsResultArray.length}`);
-                                            //console.log(`426. Final Items Array: ${JSON.stringify(itemsResultArray)}`);
+                                            console.log(`435. Final Items Array Quantity: ${itemsResultArray.length}`);
+                                            //console.log(`436. Final Items Array: ${JSON.stringify(itemsResultArray)}`);
+                                            let itemSearchFilter = itemsResultArray.filter(element => element.internal == 50015);
+                                            console.log(`438. Filtro de busqueda (${itemSearchFilter.length}): ${JSON.stringify(itemSearchFilter)}`);
 
                                             if (itemsResultArray.length > 0) {
 
                                                 let itemsFilter = itemsResultArray.filter(element => (element.isinstock == true));
-                                                console.log(`429. Items in Stock: ${itemsFilter.length}`);
+                                                console.log(`443. Items in Stock: ${itemsFilter.length}`);
 
                                                 let outputArray = [];
 
@@ -448,9 +450,9 @@ app.get('/products', validateToken, async (req, res) => {
                                                         if (itemsFilter[i].hasOwnProperty('custitem_ptly_mgt_web_sites')) {
 
                                                             let itemWebsites = itemsFilter[i].custitem_ptly_mgt_web_sites.split(',');
-                                                            //console.log(`381. ItemWebsites: ${JSON.stringify(itemWebsites)}`)
+                                                            //console.log(`453. ItemWebsites: ${JSON.stringify(itemWebsites)}`)
                                                             let webSiteFilter = itemWebsites.filter(element => limpiarString(element) == WEBSITE_ID);
-                                                            //console.log(`445. Items Disponibles en Web: ${webSiteFilter.length}`);
+                                                            //console.log(`455. Items Disponibles en Web: ${webSiteFilter.length}`);
 
                                                             if (webSiteFilter.length > 0) {
 
@@ -459,8 +461,22 @@ app.get('/products', validateToken, async (req, res) => {
                                                                     sku: itemsFilter[i].itemid,
                                                                     nombre: itemsFilter[i].storedisplayname2,
                                                                     marca: itemsFilter[i].custitem_marca,
-                                                                    codigo_upc: itemsFilter[i].upccode
+                                                                    codigo_upc: itemsFilter[i].upccode,
                                                                 };
+
+                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_class_id')) {
+                                                                    obj.id_class = itemsFilter[i].custitem_ptly_class_id;
+                                                                }
+                                                                else {
+                                                                    obj.id_class = '';
+                                                                }
+                                                                
+                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_rubro_id')) {
+                                                                    obj.id_rubro = itemsFilter[i].custitem_ptly_rubro_id;
+                                                                }
+                                                                else {
+                                                                    obj.id_rubro = '';
+                                                                }
 
                                                                 if (itemsFilter[i].hasOwnProperty('mpn')) {
                                                                     obj.modelo = itemsFilter[i].mpn;
@@ -510,7 +526,7 @@ app.get('/products', validateToken, async (req, res) => {
 
                                                                                 let locationId = locationsConfig[b].nsLocationId;
                                                                                 let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
-                                                                                //console.log(`495. Line: ${i}_${b} | Location: ${locationId}`);
+                                                                                //console.log(`515. Line: ${i}_${b} | Location: ${locationId}`);
 
                                                                                 if (!isEmpty(locationId) && !isEmpty(locationStockPercent)) {
 
@@ -618,7 +634,7 @@ app.get('/products', validateToken, async (req, res) => {
                                                         }
                                                     }
 
-                                                    console.log(`410. Servicio correctamente ejecutado | Resultado: ${outputArray.length} articulos`);
+                                                    console.log(`623. Servicio correctamente ejecutado | Resultado: ${outputArray.length} articulos`);
                                                     serviceResponse.error = false;
                                                     serviceResponse.message = `Solicitud realizada con exito`;
                                                     serviceResponse.result = outputArray.length;
@@ -686,8 +702,8 @@ app.get('/products', validateToken, async (req, res) => {
 
         let errorMsg = null;
 
-        console.log(`Error: ${JSON.stringify(e)}`);
-        console.log(`Error: ${e.message}`);
+        console.log(`691. Error: ${JSON.stringify(e)}`);
+        console.log(`692. Error: ${e.message}`);
 
         if (!isEmpty(e.message)) {
             errorMsg = e.message;
@@ -712,13 +728,13 @@ app.get('/product_config', async (req, res) => {
         if (!isEmpty(fileData)) {
 
             let fileString = JSON.stringify(fileData);
-            console.log(`601. File String: ${fileString}`);
+            console.log(`717. File String: ${fileString}`);
 
             serviceResponse.error = false;
             serviceResponse.message = `Solicitud realizada con exito.`;
             serviceResponse.quantity = fileData.length;
             serviceResponse.body = fileData;
-            console.log(`607. ${serviceResponse.message}`);
+            console.log(`723. ${serviceResponse.message}`);
             res.status(200).json(serviceResponse);
 
         }
@@ -771,11 +787,11 @@ let limpiarString = (value) => {
 let leerArchivoYParsearJSON = (filePath) => {
 
     let message = ``;
-    console.log(`657. File Path: ${filePath}`);
+    console.log(`776. File Path: ${filePath}`);
 
     return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
-            console.log(`661. Data: ${JSON.stringify(data)}`);
+            console.log(`780. Data: ${JSON.stringify(data)}`);
             if (err) {
                 message = `Error al procesar archivo Database.txt | Details: ${JSON.stringify(err)}`
                 console.error(message);
