@@ -464,13 +464,27 @@ app.get('/products', validateToken, async (req, res) => {
                                                                     codigo_upc: itemsFilter[i].upccode,
                                                                 };
 
+                                                                if (itemsFilter[i].hasOwnProperty('class')) {
+                                                                    obj.categoria = itemsFilter[i].class;
+                                                                }
+                                                                else {
+                                                                    obj.categoria = '';
+                                                                }
+
                                                                 if (itemsFilter[i].hasOwnProperty('custitem_ptly_class_id')) {
                                                                     obj.id_categoria = itemsFilter[i].custitem_ptly_class_id;
                                                                 }
                                                                 else {
                                                                     obj.id_categoria = '';
                                                                 }
-                                                                
+
+                                                                if (itemsFilter[i].hasOwnProperty('custitem_rubro_productos')) {
+                                                                    obj.rubro = itemsFilter[i].custitem_rubro_productos;
+                                                                }
+                                                                else {
+                                                                    obj.rubro = '';
+                                                                }
+
                                                                 if (itemsFilter[i].hasOwnProperty('custitem_ptly_rubro_id')) {
                                                                     obj.id_rubro = itemsFilter[i].custitem_ptly_rubro_id;
                                                                 }
