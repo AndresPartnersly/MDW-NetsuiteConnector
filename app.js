@@ -461,6 +461,7 @@ app.get('/products', validateToken, async (req, res) => {
                                                                     sku: itemsFilter[i].itemid,
                                                                     nombre: itemsFilter[i].storedisplayname2,
                                                                     marca: itemsFilter[i].custitem_marca,
+                                                                    id_marca: itemsFilter[i].hasOwnProperty('custitem_ptly_marca_id') ? parseInt(itemsFilter[i].custitem_ptly_marca_id) : '',
                                                                     codigo_upc: itemsFilter[i].upccode,
                                                                 };
 
