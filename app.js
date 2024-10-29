@@ -541,7 +541,7 @@ app.get('/products', validateToken, async (req, res) => {
 
                                                                                 let locationId = locationsConfig[b].nsLocationId;
                                                                                 let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
-                                                                                //console.log(`515. Line: ${i}_${b} | Location: ${locationId}`);
+                                                                                //console.log(`544. Line: ${i}_${b} | Location: ${locationId}`);
 
                                                                                 if (!isEmpty(locationId) && !isEmpty(locationStockPercent)) {
 
@@ -649,7 +649,7 @@ app.get('/products', validateToken, async (req, res) => {
                                                         }
                                                     }
 
-                                                    console.log(`623. Servicio correctamente ejecutado | Resultado: ${outputArray.length} articulos`);
+                                                    console.log(`652. Servicio correctamente ejecutado | Resultado: ${outputArray.length} articulos`);
                                                     serviceResponse.error = false;
                                                     serviceResponse.message = `Solicitud realizada con exito`;
                                                     serviceResponse.result = outputArray.length;
@@ -717,8 +717,8 @@ app.get('/products', validateToken, async (req, res) => {
 
         let errorMsg = null;
 
-        console.log(`691. Error: ${JSON.stringify(e)}`);
-        console.log(`692. Error: ${e.message}`);
+        console.log(`720. Error: ${JSON.stringify(e)}`);
+        console.log(`721. Error: ${e.message}`);
 
         if (!isEmpty(e.message)) {
             errorMsg = e.message;
@@ -743,13 +743,13 @@ app.get('/product_config', async (req, res) => {
         if (!isEmpty(fileData)) {
 
             let fileString = JSON.stringify(fileData);
-            console.log(`717. File String: ${fileString}`);
+            console.log(`746. File String: ${fileString}`);
 
             serviceResponse.error = false;
             serviceResponse.message = `Solicitud realizada con exito.`;
             serviceResponse.quantity = fileData.length;
             serviceResponse.body = fileData;
-            console.log(`723. ${serviceResponse.message}`);
+            console.log(`752. ${serviceResponse.message}`);
             res.status(200).json(serviceResponse);
 
         }
@@ -802,11 +802,11 @@ let limpiarString = (value) => {
 let leerArchivoYParsearJSON = (filePath) => {
 
     let message = ``;
-    console.log(`776. File Path: ${filePath}`);
+    console.log(`805. File Path: ${filePath}`);
 
     return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
-            console.log(`780. Data: ${JSON.stringify(data)}`);
+            console.log(`809. Data: ${JSON.stringify(data)}`);
             if (err) {
                 message = `Error al procesar archivo Database.txt | Details: ${JSON.stringify(err)}`
                 console.error(message);
