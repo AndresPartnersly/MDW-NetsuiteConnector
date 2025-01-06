@@ -585,30 +585,33 @@ app.get('/products', validateToken, async (req, res) => {
                                                                     }
                                                                 }
 
-                                                                if (itemsFilter[i].hasOwnProperty('taxschedule')) {
+                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_tax_schedule_id')) {
 
                                                                     let taxResult = null;
                                                                     // Valores fijos actualmente
-                                                                    if (itemsFilter[i].taxschedule == "IVA REDUCIDO") {
+                                                                    if (itemsFilter[i].custitem_ptly_tax_schedule_id == "4") {
                                                                         taxResult = '10.5%';
                                                                         obj.iva = taxResult;
                                                                     }
-                                                                    else if (itemsFilter[i].taxschedule == "IVA GENERAL") {
+                                                                    else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "2" || itemsFilter[i].custitem_ptly_tax_schedule_id == "3") {
                                                                         taxResult = '21%';
                                                                         obj.iva = taxResult;
                                                                     }
-                                                                    else if (itemsFilter[i].taxschedule == "IVA ESPECIAL") {
+                                                                    else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "6") {
                                                                         taxResult = '27%';
                                                                         obj.iva = taxResult;
                                                                     }
-                                                                    else if (itemsFilter[i].taxschedule == "EXENTO") {
+                                                                    else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "1") {
                                                                         taxResult = '0%';
                                                                         obj.iva = taxResult;
                                                                     }
                                                                 }
 
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_3k_porc_imp_int')) {
-                                                                    obj.imp_interno = itemsFilter[i].custitem_3k_porc_imp_int;
+                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_tax_schedule_id')) {
+                                                                    if (itemsFilter[i].custitem_ptly_tax_schedule_id == "3")
+                                                                    {
+                                                                        obj.imp_interno = '23.46%';
+                                                                    }
                                                                 }
                                                                 else {
                                                                     obj.imp_interno = `0%`
