@@ -607,10 +607,15 @@ app.get('/products', validateToken, async (req, res) => {
                                                                     }
                                                                 }
 
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_tax_schedule_id')) {
+                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_tax_schedule_id')) 
+                                                                {
                                                                     if (itemsFilter[i].custitem_ptly_tax_schedule_id == "3")
                                                                     {
                                                                         obj.imp_interno = '23.46%';
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        obj.imp_interno = `0%`
                                                                     }
                                                                 }
                                                                 else {
