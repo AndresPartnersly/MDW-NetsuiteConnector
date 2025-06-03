@@ -593,7 +593,7 @@ app.get('/products', validateToken, async (req, res) => {
                                                                         taxResult = '10.5%';
                                                                         obj.iva = taxResult;
                                                                     }
-                                                                    else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "2" || itemsFilter[i].custitem_ptly_tax_schedule_id == "3") {
+                                                                    else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "2" || itemsFilter[i].custitem_ptly_tax_schedule_id == "3" || itemsFilter[i].custitem_ptly_tax_schedule_id == "7") {
                                                                         taxResult = '21%';
                                                                         obj.iva = taxResult;
                                                                     }
