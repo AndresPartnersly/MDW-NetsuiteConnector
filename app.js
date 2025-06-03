@@ -615,7 +615,14 @@ app.get('/products', validateToken, async (req, res) => {
                                                                     }
                                                                     else
                                                                     {
-                                                                        obj.imp_interno = `0%`
+                                                                        if (itemsFilter[i].custitem_ptly_tax_schedule_id == "7")
+                                                                        {
+                                                                            obj.imp_interno = '10.50%';
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            obj.imp_interno = `0%`
+                                                                        }
                                                                     }
                                                                 }
                                                                 else {
