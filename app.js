@@ -434,7 +434,7 @@ app.get('/products', validateToken, async (req, res) => {
 
                                             console.log(`435. Final Items Array Quantity: ${itemsResultArray.length}`);
                                             //console.log(`436. Final Items Array: ${JSON.stringify(itemsResultArray)}`);
-                                            let itemSearchFilter = itemsResultArray.filter(element => element.internal == 50015);
+                                            let itemSearchFilter = itemsResultArray.filter(element => element.internalid == 78803);
                                             console.log(`438. Filtro de busqueda (${itemSearchFilter.length}): ${JSON.stringify(itemSearchFilter)}`);
 
                                             if (itemsResultArray.length > 0) {
