@@ -1,0 +1,1301 @@
+[
+        {
+            "user": "SUPERSISTEMASWEB",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "20",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "17",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "18",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "KALPASYSTEM",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "22",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "19",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "20",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "LANGSALVADORPABLO",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "24",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "21",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "22",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "andres.brito@partnersly.com",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "26",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        },
+                        {
+                            "id": "27",
+                            "nsLocationId": "828",
+                            "stockPercent": ".1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "23",
+                            "priceLevelId": "pricelevel33",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "24",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "KATECH",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "28",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "25",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "26",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "MansillaRodriguezSH",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "30",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "27",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "28",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "DINOBYTE",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "32",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "29",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "30",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "FORTESNAHUEL",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "34",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "31",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "32",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "MAITESS",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "36",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "33",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "34",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "TRENDIT",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "38",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "35",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "36",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "FIGOLALAURA",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "40",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "37",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "38",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "THEGAMESTERTECH",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "42",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "39",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "40",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "IGNATECH",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "44",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "41",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "42",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "GAMERFACTORY",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "46",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "43",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "44",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "JACTECNOLOGIA",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "48",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "45",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "46",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "DIGIFY",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "50",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "47",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "48",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "COMERCIALIZADORAARVEN",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "54",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "51",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "52",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "GETPONCHO",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "56",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "53",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "54",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "RMINSUMOS",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "58",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "55",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "56",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "MGURESELLER",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "60",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "57",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "58",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "TIENDATRADE",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "62",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "59",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "60",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "MAZAMARCELO",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "64",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "61",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "62",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "ACCIONMERCANTIL",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "68",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "63",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "64",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "ELECTROSOF",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "70",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "65",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "66",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "TECINFORMATICA",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "72",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "67",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "68",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "TEVELINSA",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "74",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "69",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "70",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "LEANDRO-BAGLIERI",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "76",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "71",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "72",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "DOHKO-SRL",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "78",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "73",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "74",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "PCHARD",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "80",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "75",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "76",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "CASASILVIA",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "82",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "77",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "78",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "SYSTEM32CBA-SAS",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "84",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "79",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "80",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "CASHCOIN",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "86",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "81",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "82",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        },
+                        {
+                            "id": "85",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "5",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "86",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "5",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "GROUPMOBILE-SA",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "88",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "83",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "84",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "RSAP",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "95",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "87",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "88",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "DCLATAM",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "97",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "89",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "90",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "DIG-SOL-INF",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "99",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": "1"
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "91",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "92",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "RETEC",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "16",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "8",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "9",
+                            "priceLevelId": "pricelevel34",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "GERBIO",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "14",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "6",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "7",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "TACCO",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "12",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "4",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "5",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        },
+        {
+            "user": "FULLHARD",
+            "configuration": [
+                {
+                    "stockMax": "100",
+                    "configLocationData": [
+                        {
+                            "id": "18",
+                            "nsLocationId": "829",
+                            "stockPercent": "1",
+                            "stockMax": "",
+                            "priority": ""
+                        }
+                    ],
+                    "configPriceLevelData": [
+                        {
+                            "id": "13",
+                            "priceLevelId": "pricelevel32",
+                            "currencyId": "1",
+                            "intPriceLevelId": "price"
+                        },
+                        {
+                            "id": "14",
+                            "priceLevelId": "pricelevel22",
+                            "currencyId": "1",
+                            "intPriceLevelId": "special_price"
+                        }
+                    ],
+                    "itemsId": ""
+                }
+            ]
+        }
+    ]
