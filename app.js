@@ -434,8 +434,6 @@ app.get('/products', validateToken, async (req, res) => {
 
                                             console.log(`435. Final Items Array Quantity: ${itemsResultArray.length}`);
                                             //console.log(`436. Final Items Array: ${JSON.stringify(itemsResultArray)}`);
-                                            let itemSearchFilter = itemsResultArray.filter(element => element.internal == 50015);
-                                            console.log(`438. Filtro de busqueda (${itemSearchFilter.length}): ${JSON.stringify(itemSearchFilter)}`);
 
                                             if (itemsResultArray.length > 0) {
 
@@ -447,221 +445,207 @@ app.get('/products', validateToken, async (req, res) => {
                                                 if (itemsFilter.length > 0) {
                                                     for (let i = 0; i < itemsFilter.length; i++) {
 
-                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_mgt_web_sites')) {
+                                                        let obj = {
+                                                            id: itemsFilter[i].internalid,
+                                                            sku: itemsFilter[i].itemid,
+                                                            nombre: itemsFilter[i].storedisplayname2,
+                                                            marca: itemsFilter[i].custitem_marca,
+                                                            id_marca: itemsFilter[i].hasOwnProperty('custitem_ptly_marca_id') ? itemsFilter[i].custitem_ptly_marca_id : '',
+                                                            codigo_upc: itemsFilter[i].upccode,
+                                                        };
 
-                                                            let itemWebsites = itemsFilter[i].custitem_ptly_mgt_web_sites.split(',');
-                                                            //console.log(`453. ItemWebsites: ${JSON.stringify(itemWebsites)}`)
-                                                            let webSiteFilter = itemWebsites.filter(element => limpiarString(element) == WEBSITE_ID);
-                                                            //console.log(`455. Items Disponibles en Web: ${webSiteFilter.length}`);
+                                                        if (itemsFilter[i].hasOwnProperty('class')) {
+                                                            obj.categoria = itemsFilter[i].class;
+                                                        }
+                                                        else {
+                                                            obj.categoria = '';
+                                                        }
 
-                                                            if (webSiteFilter.length > 0) {
+                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_class_id')) {
+                                                            obj.id_categoria = itemsFilter[i].custitem_ptly_class_id;
+                                                        }
+                                                        else {
+                                                            obj.id_categoria = '';
+                                                        }
 
-                                                                let obj = {
-                                                                    id: itemsFilter[i].internalid,
-                                                                    sku: itemsFilter[i].itemid,
-                                                                    nombre: itemsFilter[i].storedisplayname2,
-                                                                    marca: itemsFilter[i].custitem_marca,
-                                                                    id_marca: itemsFilter[i].hasOwnProperty('custitem_ptly_marca_id') ? itemsFilter[i].custitem_ptly_marca_id : '',
-                                                                    codigo_upc: itemsFilter[i].upccode,
-                                                                };
+                                                        if (itemsFilter[i].hasOwnProperty('custitem_rubro_productos')) {
+                                                            obj.rubro = itemsFilter[i].custitem_rubro_productos;
+                                                        }
+                                                        else {
+                                                            obj.rubro = '';
+                                                        }
 
-                                                                if (itemsFilter[i].hasOwnProperty('class')) {
-                                                                    obj.categoria = itemsFilter[i].class;
+                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_rubro_id')) {
+                                                            obj.id_rubro = itemsFilter[i].custitem_ptly_rubro_id;
+                                                        }
+                                                        else {
+                                                            obj.id_rubro = '';
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('mpn')) {
+                                                            obj.modelo = itemsFilter[i].mpn;
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('vendorname')) {
+                                                            obj.nombre_proveedor = itemsFilter[i].vendorname;
+                                                        }
+
+                                                        let standardPriceValue = 0;
+                                                        let specialPriceValue = null;
+
+                                                        if (itemsFilter[i].hasOwnProperty(standardPrice)) {
+
+                                                            standardPriceValue = itemsFilter[i][standardPrice];
+
+                                                            if (!isEmpty(specialPrice)) {
+                                                                if (itemsFilter[i].hasOwnProperty(specialPrice)) {
+                                                                    specialPriceValue = itemsFilter[i][specialPrice];
                                                                 }
-                                                                else {
-                                                                    obj.categoria = '';
-                                                                }
+                                                            }
 
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_class_id')) {
-                                                                    obj.id_categoria = itemsFilter[i].custitem_ptly_class_id;
-                                                                }
-                                                                else {
-                                                                    obj.id_categoria = '';
-                                                                }
+                                                            if (specialPriceValue != null && specialPriceValue != 0 && specialPriceValue < standardPriceValue) {
+                                                                obj.precio = specialPriceValue;
+                                                            }
+                                                            else {
+                                                                obj.precio = standardPriceValue;
+                                                            }
+                                                        }
+                                                        else {
+                                                            obj.precio = null;
+                                                        }
 
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_rubro_productos')) {
-                                                                    obj.rubro = itemsFilter[i].custitem_rubro_productos;
-                                                                }
-                                                                else {
-                                                                    obj.rubro = '';
-                                                                }
+                                                        obj.disponible = false;
+                                                        obj.cantidad_disponible = 0;
 
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_rubro_id')) {
-                                                                    obj.id_rubro = itemsFilter[i].custitem_ptly_rubro_id;
-                                                                }
-                                                                else {
-                                                                    obj.id_rubro = '';
-                                                                }
+                                                        let currentQtyAvailableTotal = 0;
 
-                                                                if (itemsFilter[i].hasOwnProperty('mpn')) {
-                                                                    obj.modelo = itemsFilter[i].mpn;
-                                                                }
+                                                        if (itemsFilter[i].hasOwnProperty('quantityavailable_detail')) {
 
-                                                                if (itemsFilter[i].hasOwnProperty('vendorname')) {
-                                                                    obj.nombre_proveedor = itemsFilter[i].vendorname;
-                                                                }
+                                                            let quantityAvailable = itemsFilter[i].quantityavailable_detail;
 
-                                                                let standardPriceValue = 0;
-                                                                let specialPriceValue = null;
+                                                            if (quantityAvailable.hasOwnProperty('quantityavailable') && quantityAvailable.hasOwnProperty('locations')) {
+                                                                if (quantityAvailable.quantityavailable > 0 && quantityAvailable.locations.length > 0) {
 
-                                                                if (itemsFilter[i].hasOwnProperty(standardPrice)) {
+                                                                    for (let b = 0; b < locationsConfig.length; b++) {
 
-                                                                    standardPriceValue = itemsFilter[i][standardPrice];
+                                                                        let locationId = locationsConfig[b].nsLocationId;
+                                                                        let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
+                                                                        //console.log(`544. Line: ${i}_${b} | Location: ${locationId}`);
 
-                                                                    if (!isEmpty(specialPrice)) {
-                                                                        if (itemsFilter[i].hasOwnProperty(specialPrice)) {
-                                                                            specialPriceValue = itemsFilter[i][specialPrice];
-                                                                        }
-                                                                    }
+                                                                        if (!isEmpty(locationId) && !isEmpty(locationStockPercent)) {
 
-                                                                    if (specialPriceValue != null && specialPriceValue != 0 && specialPriceValue < standardPriceValue) {
-                                                                        obj.precio = specialPriceValue;
-                                                                    }
-                                                                    else {
-                                                                        obj.precio = standardPriceValue;
-                                                                    }
-                                                                }
-                                                                else {
-                                                                    obj.precio = null;
-                                                                }
+                                                                            for (let c = 0; c < quantityAvailable.locations.length; c++) {
 
-                                                                obj.disponible = false;
-                                                                obj.cantidad_disponible = 0;
+                                                                                let itemLocFilter = quantityAvailable.locations.filter(element => element.internalid == locationId);
 
-                                                                let currentQtyAvailableTotal = 0;
+                                                                                if (itemLocFilter.length > 0) {
 
-                                                                if (itemsFilter[i].hasOwnProperty('quantityavailable_detail')) {
+                                                                                    let itemLocQty = quantityAvailable.locations[c].quantityavailable;
+                                                                                    let calculo = itemLocQty * locationStockPercent;
 
-                                                                    let quantityAvailable = itemsFilter[i].quantityavailable_detail;
-
-                                                                    if (quantityAvailable.hasOwnProperty('quantityavailable') && quantityAvailable.hasOwnProperty('locations')) {
-                                                                        if (quantityAvailable.quantityavailable > 0 && quantityAvailable.locations.length > 0) {
-
-                                                                            for (let b = 0; b < locationsConfig.length; b++) {
-
-                                                                                let locationId = locationsConfig[b].nsLocationId;
-                                                                                let locationStockPercent = parseFloat(locationsConfig[b].stockPercent);
-                                                                                //console.log(`544. Line: ${i}_${b} | Location: ${locationId}`);
-
-                                                                                if (!isEmpty(locationId) && !isEmpty(locationStockPercent)) {
-
-                                                                                    for (let c = 0; c < quantityAvailable.locations.length; c++) {
-
-                                                                                        let itemLocFilter = quantityAvailable.locations.filter(element => element.internalid == locationId);
-
-                                                                                        if (itemLocFilter.length > 0) {
-
-                                                                                            let itemLocQty = quantityAvailable.locations[c].quantityavailable;
-                                                                                            let calculo = itemLocQty * locationStockPercent;
-
-                                                                                            if (calculo > 0 && calculo < 1) {
-                                                                                                currentQtyAvailableTotal++;
-                                                                                            }
-                                                                                            else if (calculo > 1) {
-                                                                                                currentQtyAvailableTotal += Math.round(calculo);
-                                                                                            }
-                                                                                        }
+                                                                                    if (calculo > 0 && calculo < 1) {
+                                                                                        currentQtyAvailableTotal++;
+                                                                                    }
+                                                                                    else if (calculo > 1) {
+                                                                                        currentQtyAvailableTotal += Math.round(calculo);
                                                                                     }
                                                                                 }
                                                                             }
                                                                         }
                                                                     }
                                                                 }
-
-                                                                if (currentQtyAvailableTotal > 0) {
-
-                                                                    obj.disponible = true;
-
-                                                                    if (!isEmpty(configStockMax)) {
-                                                                        if (currentQtyAvailableTotal < configStockMax) {
-                                                                            obj.cantidad_disponible = currentQtyAvailableTotal;
-                                                                        }
-                                                                        else {
-                                                                            obj.cantidad_disponible = configStockMax;
-                                                                        }
-                                                                    }
-                                                                    else {
-                                                                        obj.cantidad_disponible = currentQtyAvailableTotal;
-                                                                    }
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_tax_schedule_id')) {
-
-                                                                    let taxResult = null;
-                                                                    // Valores fijos actualmente
-                                                                    if (itemsFilter[i].custitem_ptly_tax_schedule_id == "4") {
-                                                                        taxResult = '10.5%';
-                                                                        obj.iva = taxResult;
-                                                                    }
-                                                                    else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "2" || itemsFilter[i].custitem_ptly_tax_schedule_id == "3" || itemsFilter[i].custitem_ptly_tax_schedule_id == "7") {
-                                                                        taxResult = '21%';
-                                                                        obj.iva = taxResult;
-                                                                    }
-                                                                    else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "6") {
-                                                                        taxResult = '27%';
-                                                                        obj.iva = taxResult;
-                                                                    }
-                                                                    else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "1") {
-                                                                        taxResult = '0%';
-                                                                        obj.iva = taxResult;
-                                                                    }
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_tax_schedule_id')) 
-                                                                {
-                                                                    if (itemsFilter[i].custitem_ptly_tax_schedule_id == "3")
-                                                                    {
-                                                                        obj.imp_interno = '23.46%';
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        if (itemsFilter[i].custitem_ptly_tax_schedule_id == "7")
-                                                                        {
-                                                                            obj.imp_interno = '10.50%';
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            obj.imp_interno = `0%`
-                                                                        }
-                                                                    }
-                                                                }
-                                                                else {
-                                                                    obj.imp_interno = `0%`
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_ancho_cm')) {
-                                                                    obj.ancho_cm = itemsFilter[i].custitem_ptly_ancho_cm;
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_largo_cm')) {
-                                                                    obj.largo_cm = itemsFilter[i].custitem_ptly_largo_cm;
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_alto_cm')) {
-                                                                    obj.alto_cm = itemsFilter[i].custitem_ptly_alto_cm;
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('custitem_ptly_peso_kg')) {
-                                                                    obj.peso_kg = itemsFilter[i].custitem_ptly_peso_kg;
-                                                                }
-
-                                                                if (itemsFilter[i].hasOwnProperty('itemimages_detail')) {
-
-                                                                    let imagenes = itemsFilter[i].itemimages_detail;
-
-                                                                    if (imagenes.hasOwnProperty('urls')) {
-                                                                        if (imagenes.urls.length > 0) {
-                                                                            obj.imagenes = imagenes.urls;
-                                                                        }
-                                                                    }
-                                                                }
-
-                                                                outputArray.push(obj);
-                                                            }
-                                                            else {
-
                                                             }
                                                         }
+
+                                                        if (currentQtyAvailableTotal > 0) {
+
+                                                            obj.disponible = true;
+
+                                                            if (!isEmpty(configStockMax)) {
+                                                                if (currentQtyAvailableTotal < configStockMax) {
+                                                                    obj.cantidad_disponible = currentQtyAvailableTotal;
+                                                                }
+                                                                else {
+                                                                    obj.cantidad_disponible = configStockMax;
+                                                                }
+                                                            }
+                                                            else {
+                                                                obj.cantidad_disponible = currentQtyAvailableTotal;
+                                                            }
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_tax_schedule_id')) {
+
+                                                            let taxResult = null;
+                                                            // Valores fijos actualmente
+                                                            if (itemsFilter[i].custitem_ptly_tax_schedule_id == "4") {
+                                                                taxResult = '10.5%';
+                                                                obj.iva = taxResult;
+                                                            }
+                                                            else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "2" || itemsFilter[i].custitem_ptly_tax_schedule_id == "3" || itemsFilter[i].custitem_ptly_tax_schedule_id == "7") {
+                                                                taxResult = '21%';
+                                                                obj.iva = taxResult;
+                                                            }
+                                                            else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "6") {
+                                                                taxResult = '27%';
+                                                                obj.iva = taxResult;
+                                                            }
+                                                            else if (itemsFilter[i].custitem_ptly_tax_schedule_id == "1") {
+                                                                taxResult = '0%';
+                                                                obj.iva = taxResult;
+                                                            }
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_tax_schedule_id')) 
+                                                        {
+                                                            if (itemsFilter[i].custitem_ptly_tax_schedule_id == "3")
+                                                            {
+                                                                obj.imp_interno = '23.46%';
+                                                            }
+                                                            else
+                                                            {
+                                                                if (itemsFilter[i].custitem_ptly_tax_schedule_id == "7")
+                                                                {
+                                                                    obj.imp_interno = '10.50%';
+                                                                }
+                                                                else
+                                                                {
+                                                                    obj.imp_interno = `0%`
+                                                                }
+                                                            }
+                                                        }
+                                                        else {
+                                                            obj.imp_interno = `0%`
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_ancho_cm')) {
+                                                            obj.ancho_cm = itemsFilter[i].custitem_ptly_ancho_cm;
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_largo_cm')) {
+                                                            obj.largo_cm = itemsFilter[i].custitem_ptly_largo_cm;
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_alto_cm')) {
+                                                            obj.alto_cm = itemsFilter[i].custitem_ptly_alto_cm;
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('custitem_ptly_peso_kg')) {
+                                                            obj.peso_kg = itemsFilter[i].custitem_ptly_peso_kg;
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('itemimages_detail')) {
+
+                                                            let imagenes = itemsFilter[i].itemimages_detail;
+
+                                                            if (imagenes.hasOwnProperty('urls')) {
+                                                                if (imagenes.urls.length > 0) {
+                                                                    obj.imagenes = imagenes.urls;
+                                                                }
+                                                            }
+                                                        }
+
+                                                        outputArray.push(obj);
                                                     }
 
                                                     console.log(`652. Servicio correctamente ejecutado | Resultado: ${outputArray.length} articulos`);
