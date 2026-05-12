@@ -768,55 +768,69 @@ app.get('/product_config', async (req, res) => {
 
 app.post('/send_svn_notification', async (req, res) => {
 
+    const dataHeaders = req.headers; // Datos recibidos en el cuerpo de la solicitud.
+    console.log(`772. Request Headers: ${JSON.stringify(dataHeaders)}`);
+
     const data = req.body; // Datos recibidos en el cuerpo de la solicitud.
-    console.log(`772. Request Body: ${JSON.stringify(data)}`);
+    console.log(`775. Request Body: ${JSON.stringify(data)}`);
 
-    const oauth = OAuth({
-        consumer: {
-            key: svn_consumer_key, // Clave del consumidor para OAuth.
-            secret: svn_consumer_secret // Secreto del consumidor para OAuth.
-        },
-        signature_method: 'HMAC-SHA256', // Método de firma HMAC-SHA256.
-        hash_function(base_string, key) {
-            return crypto.createHmac('sha256', key).update(base_string).digest('base64');
-        }
-    });
+    try {
 
-    // Token de acceso para las peticiones.
-    const token = {
-        key: svn_access_token, // Clave del token de acceso.
-        secret: svn_token_secret // Secreto del token de acceso.
-    };
+        const oauth = OAuth({
+            consumer: {
+                key: svn_consumer_key, // Clave del consumidor para OAuth.
+                secret: svn_consumer_secret // Secreto del consumidor para OAuth.
+            },
+            signature_method: 'HMAC-SHA256', // Método de firma HMAC-SHA256.
+            hash_function(base_string, key) {
+                return crypto.createHmac('sha256', key).update(base_string).digest('base64');
+            }
+        });
 
-    // URL del servicio
-    const url = svn_base_url;
+        // Token de acceso para las peticiones.
+        const token = {
+            key: svn_access_token, // Clave del token de acceso.
+            secret: svn_token_secret // Secreto del token de acceso.
+        };
 
-    // Generar encabezado de autorización OAuth
-    let request_data = {
-        url: url,
-        method: 'POST',
-    };
-    let authorization = oauth.toHeader(oauth.authorize(request_data, token));
+        // URL del servicio
+        const url = svn_base_url;
 
-    // Si necesitas agregar realm, descomenta la siguiente línea y reemplaza 'TU_REALM' por el valor correcto:
-    authorization['Authorization'] += ', realm="' + svn_realm_id + '"';
+        // Generar encabezado de autorización OAuth
+        let request_data = {
+            url: url,
+            method: 'POST',
+        };
+        let authorization = oauth.toHeader(oauth.authorize(request_data, token));
 
-    // Realizar la solicitud POST con los headers OAuth y el body recibido
-    axios.post(url, data, {
-        headers: {
-            ...authorization,
-            'Content-Type': 'application/json'
-        }
-    }).then(response => {
-        console.log(`811. Respuesta: ${JSON.stringify(response.data)}`);
-        
-        if (!isEmpty(response.data)) {
-            res.status(200).json(response.data);
-        }
-    }).catch(error => {
-        console.error(`815. Error en la solicitud: ${error.message}`);
-        res.status(500).json(error.data);
-    });
+        // Si necesitas agregar realm, descomenta la siguiente línea y reemplaza 'TU_REALM' por el valor correcto:
+        authorization['Authorization'] += ', realm="' + svn_realm_id + '"';
+
+        // Realizar la solicitud POST con los headers OAuth y el body recibido
+        axios.post(url, data, {
+            headers: {
+                ...authorization,
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            console.log(`816. Respuesta: ${JSON.stringify(response.data)}`);
+
+            if (!isEmpty(response.data)) {
+                res.status(200).json(response.data);
+            }
+        }).catch(error => {
+            console.error(`815. Error en la solicitud: ${error.message}`);
+            res.status(500).json(error.data);
+        });
+    }
+    catch (e) {
+        console.error(`827. Error: ${JSON.stringify(e)}`);
+        res.status(500).json({
+            code: 500,
+            shortDescription: "ERROR",
+            longDescription: "Error inesperado"
+        });
+    }
 });
 
 let isEmpty = (value) => {
@@ -855,11 +869,11 @@ let limpiarString = (value) => {
 let leerArchivoYParsearJSON = (filePath) => {
 
     let message = ``;
-    console.log(`858. File Path: ${filePath}`);
+    console.log(`872. File Path: ${filePath}`);
 
     return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
-            console.log(`862. Data: ${JSON.stringify(data)}`);
+            console.log(`876. Data: ${JSON.stringify(data)}`);
             if (err) {
                 message = `Error al procesar archivo Database.txt | Details: ${JSON.stringify(err)}`
                 console.error(message);
