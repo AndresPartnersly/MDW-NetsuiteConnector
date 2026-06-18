@@ -451,7 +451,7 @@ app.get('/products', validateToken, async (req, res) => {
                                                             nombre: itemsFilter[i].storedisplayname2,
                                                             marca: itemsFilter[i].custitem_marca,
                                                             id_marca: itemsFilter[i].hasOwnProperty('custitem_ptly_marca_id') ? itemsFilter[i].custitem_ptly_marca_id : '',
-                                                            codigo_upc: itemsFilter[i].upccode,
+                                                            codigo_upc: itemsFilter[i].upccode
                                                         };
 
                                                         if (itemsFilter[i].hasOwnProperty('class')) {
@@ -643,6 +643,22 @@ app.get('/products', validateToken, async (req, res) => {
                                                                     obj.imagenes = imagenes.urls;
                                                                 }
                                                             }
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('storedescription')) {
+                                                            obj.description = itemsFilter[i].storedescription;
+                                                        }
+                                                        else
+                                                        {
+                                                            obj.description = '';
+                                                        }
+
+                                                        if (itemsFilter[i].hasOwnProperty('storedetaileddescription')) {
+                                                            obj.detaileddescription = itemsFilter[i].storedetaileddescription;
+                                                        }
+                                                        else
+                                                        {
+                                                            obj.detaileddescription = '';
                                                         }
 
                                                         outputArray.push(obj);
