@@ -646,19 +646,19 @@ app.get('/products', validateToken, async (req, res) => {
                                                         }
 
                                                         if (itemsFilter[i].hasOwnProperty('storedescription')) {
-                                                            obj.description = itemsFilter[i].storedescription;
+                                                            obj.descripcion = itemsFilter[i].storedescription;
                                                         }
                                                         else
                                                         {
-                                                            obj.description = '';
+                                                            obj.descripcion = '';
                                                         }
 
                                                         if (itemsFilter[i].hasOwnProperty('storedetaileddescription')) {
-                                                            obj.detaileddescription = itemsFilter[i].storedetaileddescription;
+                                                            obj.descripciondetallada = itemsFilter[i].storedetaileddescription;
                                                         }
                                                         else
                                                         {
-                                                            obj.detaileddescription = '';
+                                                            obj.descripciondetallada = '';
                                                         }
 
                                                         outputArray.push(obj);
